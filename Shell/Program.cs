@@ -66,6 +66,10 @@ namespace Shell
             {
                 LsFolders(command);
             }
+            else if (args[0] == "cd")
+            {
+                CurrentDir(command);
+            }
             else if(command.Replace(" ", "") != "")
             {
                 Console.WriteLine("Commande non reconnu.");
@@ -208,24 +212,104 @@ namespace Shell
                 }
             }
 
-
             if (argsStr.Length >= 2 && argsStr.Length != 3)
             {
-                Console.WriteLine("Chemin d'accès non recosnnu.");
+                Console.WriteLine("Chemin d'accès non reconnu.");
                 return;
             }
 
             if (!Directory.Exists(path))
             {
-                Console.WriteLine(path);
-                Console.WriteLine("Chemin d'accès non rseconnu.");
+                Console.WriteLine("Chemin d'accès non reconnu.");
                 return;
             }
 
+            foreach (var item in Directory.GetDirectories(path))
+            {
+                Console.WriteLine(item.Substring(path.Length + 1) + "\\");
+            }
             foreach (var item in Directory.GetFiles(path))
             {
-                Console.WriteLine(item.Substring(path.Length));
+                Console.WriteLine(item.Substring(path.Length + 1));
             }
+        }
+        static void CurrentDir(string command)
+        {
+            string[] argsStr = command.Split('\"');
+            string[] args = command.Split(' ');
+
+            string pathToGo = shellConfig.actualDir;
+            string path = "";
+            if (argsStr.Length > 1)
+            {
+                path = argsStr[1];
+            }
+            else if (args.Length > 1)
+            {
+                path = "";
+                int i = 0;
+                foreach (var item in args)
+                {
+                    if (i > 0)
+                    {
+                        path += item + " ";
+                    }
+                    i++;
+                }
+            }
+            if(path.Replace(" ", "").Length == 0)
+            {
+                return;
+            }
+
+            string[] directories = path.Replace("/", "\\").Split('\\');
+            if (path[0] == '\\')
+            {
+                pathToGo = "";
+            }
+
+            foreach (var item in directories)
+            {
+                if (item.Replace(" ", "") == "..")
+                {
+                    pathToGo = RemoveLastPathDir(pathToGo);
+                }
+                else if (item.Replace(" ", "") != ".")
+                {
+                    pathToGo += "\\" + item;
+                }
+            }
+            if(directories[directories.Length - 1].Replace(" ", "") == "")
+            {
+                pathToGo = pathToGo.Substring(0, pathToGo.LastIndexOf("\\"));
+            }
+            if(pathToGo[pathToGo.Length - 1] == ' ')
+            {
+                pathToGo = pathToGo.Substring(0, pathToGo.Length - 1);
+            }
+
+            if (Directory.Exists(pathToGo))
+            {
+                shellConfig.actualDir = pathToGo;
+            }
+            else
+            {
+                Console.WriteLine("Chemin d'accès non reconnu.");
+            }
+
+
+
+        }
+        static string RemoveLastPathDir(string path)
+        {
+            int x = path.LastIndexOf('\\');
+            if(x == path.Length)
+            {
+                path.Substring(0, x - 1);
+                x = path.LastIndexOf('\\');
+            }
+
+            return path.Substring(0, x);
         }
 
 
