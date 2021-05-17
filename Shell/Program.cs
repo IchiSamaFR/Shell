@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using System.Threading.Tasks;
 using Shell.Class;
-
+using System.Security.AccessControl;
 
 namespace Shell
 {
@@ -69,6 +69,14 @@ namespace Shell
             else if (args[0] == "cd")
             {
                 CurrentDir(command);
+            }
+            else if (args[0] == "exit")
+            {
+                Environment.Exit(0);
+            }
+            else if (args[0] == "clear")
+            {
+                Console.Clear();
             }
             else if(command.Replace(" ", "") != "")
             {
@@ -240,6 +248,11 @@ namespace Shell
                 Console.WriteLine("Chemin d'accès non reconnu.");
                 return;
             }
+            if (!CanRead(path))
+            {
+                Console.WriteLine("Vous n'avez pas l'autorisation de lire ce dossier.");
+                return;
+            }
 
             if (list)
             {
@@ -249,18 +262,24 @@ namespace Shell
                 foreach (var item in Directory.GetDirectories(path))
                 {
                     DirectoryInfo _dir = new DirectoryInfo(item);
-                    Console.WriteLine(_dir.CreationTime.ToString("dd/mm/yyyy") +
-                                     "  " + AddBlankRight("<DIR>", 20) +
-                                     "  " + _dir.Name + "\\");
+                    if (CanRead(_dir.FullName))
+                    {
+                        Console.WriteLine(_dir.CreationTime.ToString("dd/mm/yyyy") +
+                                         "  " + AddBlankRight("<DIR>", 20) +
+                                         "  " + _dir.Name + "\\");
+                    }
                 }
                 foreach (var item in Directory.GetFiles(path))
                 {
                     FileInfo _file = new FileInfo(item);
                     IFormatProvider frenchFormatProvider =
                         new System.Globalization.CultureInfo("fr-FR");
-                    Console.WriteLine(_file.CreationTime.ToString("dd/mm/yyyy") +
-                                     "  " + AddBlankLeft(_file.Length.ToString("#,##0", frenchFormatProvider), 20) +
-                                     "  " + _file.Name + "");
+                    if (CanRead(_file.FullName))
+                    {
+                        Console.WriteLine(_file.CreationTime.ToString("dd/mm/yyyy") +
+                                         "  " + AddBlankLeft(_file.Length.ToString("#,##0", frenchFormatProvider), 20) +
+                                         "  " + _file.Name + "");
+                    }
                 }
             }
             else
@@ -277,33 +296,39 @@ namespace Shell
                 foreach (var item in Directory.GetDirectories(path))
                 {
                     DirectoryInfo _dir = new DirectoryInfo(item);
-                    colValues[_x, _y] = _dir.Name + "\\";
-                    if(charCol[_x] < (_dir.Name + "\\").Length)
+                    if (CanRead(_dir.FullName))
                     {
-                        charCol[_x] = _dir.Name.Length;
-                    }
+                        colValues[_x, _y] = _dir.Name + "\\";
+                        if (charCol[_x] < (_dir.Name + "\\").Length)
+                        {
+                            charCol[_x] = _dir.Name.Length;
+                        }
 
-                    _x++;
-                    if(_x == col)
-                    {
-                        _y++;
-                        _x = 0;
+                        _x++;
+                        if (_x == col)
+                        {
+                            _y++;
+                            _x = 0;
+                        }
                     }
                 }
                 foreach (var item in Directory.GetFiles(path))
                 {
                     FileInfo _file = new FileInfo(item);
-                    colValues[_x, _y] = _file.Name;
-                    if (charCol[_x] < _file.Name.Length)
+                    if (CanRead(_file.FullName))
                     {
-                        charCol[_x] = _file.Name.Length;
-                    }
+                        colValues[_x, _y] = _file.Name;
+                        if (charCol[_x] < _file.Name.Length)
+                        {
+                            charCol[_x] = _file.Name.Length;
+                        }
 
-                    _x++;
-                    if (_x == col)
-                    {
-                        _y++;
-                        _x = 0;
+                        _x++;
+                        if (_x == col)
+                        {
+                            _y++;
+                            _x = 0;
+                        }
                     }
                 }
 
@@ -373,11 +398,11 @@ namespace Shell
                 pathToGo = pathToGo.Substring(0, pathToGo.Length - 1);
             }
 
-            if (Directory.Exists(pathToGo))
+            if (Directory.Exists(pathToGo) && CanRead(pathToGo))
             {
                 shellConfig.actualDir = ClearBlank(pathToGo);
             }
-            else if (Directory.Exists(path))
+            else if (Directory.Exists(path) && CanRead(path))
             {
                 path = ClearBlank(path).Replace('/', '\\');
                 string nPath = "";
@@ -477,6 +502,19 @@ namespace Shell
                 }
             }
             return _args;
+        }
+        public static bool CanRead(string path)
+        {
+            try
+            {
+
+                DirectorySecurity ds = Directory.GetAccessControl(path);
+                return true;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return false;
+            }
         }
     }
 }
