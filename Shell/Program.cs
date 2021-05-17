@@ -132,69 +132,18 @@ namespace Shell
         }
         static void Echo(string command)
         {
-            command = command.Replace("\\\"", "&quote").Replace("\\", "&slash");
-            string[] argsStr = command.Split('\"');
-            int i = 0;
+            string[] argsStr = command.Split(' ');
+            int x = 0;
+            string ret = "";
             foreach (var item in argsStr)
             {
-                argsStr[i] = item.Replace("&quote", "\"");
-                argsStr[i] = argsStr[i].Replace("&slash", "\\");
-                i++;
-            }
-
-            string[] args = command.Split(' ');
-            i = 0;
-            foreach (var item in args)
-            {
-                args[i] = item.Replace("&quote", "\"");
-                args[i] = args[i].Replace("&slash", "\\");
-                i++;
-            }
-
-            if (argsStr.Length > 1)
-            {
-                args = argsStr[0].Split(' ');
-            }
-
-            List<string> _args = GetArgs(args);
-            List<string> _values = GetValues(args);
-
-            if (_args.Count > 0)
-            {
-                Console.WriteLine("Arguments non reconnus.");
-                return;
-            }
-            else if (argsStr.Length == 2)
-            {
-                Console.WriteLine("\"" + argsStr[1]);
-                return;
-            }
-            else if (argsStr.Length == 3 && argsStr[2].Replace(" ", "") == "")
-            {
-                Console.WriteLine(argsStr[1]);
-                return;
-            }
-            else if (argsStr.Length >= 3 && argsStr[2].Replace(" ", "") != "")
-            {
-                Console.WriteLine("Impossible de comprendre la commande, veuillez suivre ce format :");
-                Console.WriteLine("'echo \"Mon texte\"");
-                return;
-            }
-            else if (args.Length > 1)
-            {
-                int x = 0;
-                string ret = "";
-                foreach (var item in args)
+                if (x > 0)
                 {
-                    if(x > 0)
-                    {
-                        ret += item + " ";
-                    }
-                    x++;
+                    ret += item + " ";
                 }
-                Console.WriteLine(ret);
-                return;
+                x++;
             }
+            Console.WriteLine(ret);
         }
         static void LsFolders(string command)
         {
