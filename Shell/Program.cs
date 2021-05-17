@@ -205,17 +205,24 @@ namespace Shell
 
             if (list)
             {
-                Console.WriteLine(AddBlankLeft(" ", 10) +
-                                 "  " + AddBlankRight(" ", 20) +
-                                 " " + "..");
+                Console.Write(AddBlankLeft(" ", 9) +
+                              "  " + AddBlankRight("<DIR>", 20));
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.Write("  " + "..");
+                Console.ForegroundColor = shellConfig.textColor;
+                Console.WriteLine("");
                 foreach (var item in Directory.GetDirectories(path))
                 {
                     DirectoryInfo _dir = new DirectoryInfo(item);
                     if (CanRead(_dir.FullName))
                     {
-                        Console.WriteLine(_dir.CreationTime.ToString("dd/mm/yyyy") +
-                                         "  " + AddBlankRight("<DIR>", 20) +
-                                         "  " + _dir.Name + "\\");
+                        Console.Write(_dir.CreationTime.ToString("dd/mm/yyyy") +
+                                         "  " + AddBlankRight("<DIR>", 20));
+
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                        Console.Write("  " + _dir.Name + "\\");
+                        Console.ForegroundColor = shellConfig.textColor;
+                        Console.WriteLine("");
                     }
                 }
                 foreach (var item in Directory.GetFiles(path))
@@ -235,12 +242,14 @@ namespace Shell
             {
                 int _x = 0;
                 int _y = 0;
+                int _countDir = 0;
                 int col = 4;
                 int amount = Directory.GetDirectories(path).Length + Directory.GetFiles(path).Length + 1;
                 string[,] colValues = new string[col, (int)Math.Ceiling((float)amount / (float)col)];
                 int[] charCol = new int[col];
 
                 colValues[_x, _y] = "..";
+                _countDir++;
                 _x++;
                 foreach (var item in Directory.GetDirectories(path))
                 {
@@ -259,6 +268,7 @@ namespace Shell
                             _y++;
                             _x = 0;
                         }
+                        _countDir++;
                     }
                 }
                 foreach (var item in Directory.GetFiles(path))
@@ -280,12 +290,20 @@ namespace Shell
                         }
                     }
                 }
-
-
+                
                 for (int y = 0; y < colValues.GetLength(1); y++)
                 {
                     for (int x = 0; x < col; x++)
                     {
+                        if(_countDir > 0)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Blue;
+                            _countDir--;
+                        }
+                        else
+                        {
+                            Console.ForegroundColor = shellConfig.textColor;
+                        }
                         Console.Write(AddBlankRight(colValues[x, y], charCol[x]) + " ");
                     }
                     Console.WriteLine("");
@@ -456,7 +474,6 @@ namespace Shell
         {
             try
             {
-
                 DirectorySecurity ds = Directory.GetAccessControl(path);
                 return true;
             }
