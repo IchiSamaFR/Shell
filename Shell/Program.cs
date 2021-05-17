@@ -192,17 +192,20 @@ namespace Shell
         {
             string[] argsStr = command.Split('\"');
             string[] args = command.Split(' ');
+            List<string> speArgs = GetArgs(args);
+            List<string> valArgs = GetValues(args);
+            bool list = false;
 
             string path = shellConfig.actualDir;
             if (argsStr.Length > 1)
             {
                 path = argsStr[1];
             }
-            else if(args.Length > 1)
+            else if(valArgs.Count > 1)
             {
                 path = "";
                 int i = 0;
-                foreach (var item in args)
+                foreach (var item in valArgs)
                 {
                     if(i > 0)
                     {
@@ -212,25 +215,107 @@ namespace Shell
                 }
             }
 
+            foreach (var item in speArgs)
+            {
+                if(item.ToLower() == "-l" || item.ToLower() == "-list")
+                {
+                    list = true;
+                }
+            }
+
             if (argsStr.Length >= 2 && argsStr.Length != 3)
             {
                 Console.WriteLine("Chemin d'accès non reconnu.");
                 return;
             }
 
+            if (path.Replace(" ", "") == "") path = shellConfig.actualDir;
+
+            if (Directory.Exists(shellConfig.actualDir + "\\" + path))
+            {
+                path = shellConfig.actualDir + "\\" + path;
+            }
             if (!Directory.Exists(path))
             {
                 Console.WriteLine("Chemin d'accès non reconnu.");
                 return;
             }
 
-            foreach (var item in Directory.GetDirectories(path))
+            if (list)
             {
-                Console.WriteLine(item.Substring(path.Length + 1) + "\\");
+                Console.WriteLine(AddBlankLeft(" ", 10) +
+                                 "  " + AddBlankRight(" ", 20) +
+                                 " " + "..");
+                foreach (var item in Directory.GetDirectories(path))
+                {
+                    DirectoryInfo _dir = new DirectoryInfo(item);
+                    Console.WriteLine(_dir.CreationTime.ToString("dd/mm/yyyy") +
+                                     "  " + AddBlankRight("<DIR>", 20) +
+                                     "  " + _dir.Name + "\\");
+                }
+                foreach (var item in Directory.GetFiles(path))
+                {
+                    FileInfo _file = new FileInfo(item);
+                    IFormatProvider frenchFormatProvider =
+                        new System.Globalization.CultureInfo("fr-FR");
+                    Console.WriteLine(_file.CreationTime.ToString("dd/mm/yyyy") +
+                                     "  " + AddBlankLeft(_file.Length.ToString("#,##0", frenchFormatProvider), 20) +
+                                     "  " + _file.Name + "");
+                }
             }
-            foreach (var item in Directory.GetFiles(path))
+            else
             {
-                Console.WriteLine(item.Substring(path.Length + 1));
+                int _x = 0;
+                int _y = 0;
+                int col = 4;
+                int amount = Directory.GetDirectories(path).Length + Directory.GetFiles(path).Length + 1;
+                string[,] colValues = new string[col, (int)Math.Ceiling((float)amount / (float)col)];
+                int[] charCol = new int[col];
+
+                colValues[_x, _y] = "..";
+                _x++;
+                foreach (var item in Directory.GetDirectories(path))
+                {
+                    DirectoryInfo _dir = new DirectoryInfo(item);
+                    colValues[_x, _y] = _dir.Name + "\\";
+                    if(charCol[_x] < (_dir.Name + "\\").Length)
+                    {
+                        charCol[_x] = _dir.Name.Length;
+                    }
+
+                    _x++;
+                    if(_x == col)
+                    {
+                        _y++;
+                        _x = 0;
+                    }
+                }
+                foreach (var item in Directory.GetFiles(path))
+                {
+                    FileInfo _file = new FileInfo(item);
+                    colValues[_x, _y] = _file.Name;
+                    if (charCol[_x] < _file.Name.Length)
+                    {
+                        charCol[_x] = _file.Name.Length;
+                    }
+
+                    _x++;
+                    if (_x == col)
+                    {
+                        _y++;
+                        _x = 0;
+                    }
+                }
+
+
+                for (int y = 0; y < colValues.GetLength(1); y++)
+                {
+                    for (int x = 0; x < col; x++)
+                    {
+                        Console.Write(AddBlankRight(colValues[x, y], charCol[x]) + " ");
+                    }
+                    Console.WriteLine("");
+                }
             }
         }
         static void CurrentDir(string command)
@@ -290,15 +375,23 @@ namespace Shell
 
             if (Directory.Exists(pathToGo))
             {
-                shellConfig.actualDir = pathToGo;
+                shellConfig.actualDir = ClearBlank(pathToGo);
+            }
+            else if (Directory.Exists(path))
+            {
+                path = ClearBlank(path).Replace('/', '\\');
+                string nPath = "";
+                foreach (var item in path.Split('\\'))
+                {
+                    if (item.Replace(" ", "") != "") nPath += item + "\\";
+                }
+
+                shellConfig.actualDir = nPath;
             }
             else
             {
                 Console.WriteLine("Chemin d'accès non reconnu.");
             }
-
-
-
         }
         static string RemoveLastPathDir(string path)
         {
@@ -309,10 +402,57 @@ namespace Shell
                 x = path.LastIndexOf('\\');
             }
 
+            if(x == 0 || x == -1)
+            {
+                return path;
+            }
             return path.Substring(0, x);
         }
 
+        static string AddSpaceThousand(string item)
+        {
+            string[] _item = item.Split('.');
 
+
+
+            return _item.Length == 1 ? _item[0] : _item[0] + "." + _item[1];
+        }
+        static string AddBlankRight(string item, int length)
+        {
+            if (item == null) return item;
+
+            for (int i = item.Length - 1; i < length; i++)
+            {
+                item += " ";
+            }
+            return item;
+        }
+        static string AddBlankLeft(string item, int length)
+        {
+            if (item == null) return item;
+
+            for (int i = item.Length - 1; i < length; i++)
+            {
+                item = " " + item;
+            }
+            return item;
+        }
+        static string ClearBlank(string item)
+        {
+            while (true)
+            {
+                int x = item.LastIndexOf(" ");
+                if (x == item.Length - 1)
+                {
+                    item = item.Substring(0, x - 1);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return item;
+        }
         static List<string> GetArgs(string[] args)
         {
             List<string> _args = new List<string>();
