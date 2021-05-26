@@ -12,7 +12,10 @@ namespace Shell
     class Program
     {
         static ShellConfig shellConfig;
+        static string Command;
         static Dictionary<string, ConsoleColor> colors = new Dictionary<string, ConsoleColor>();
+
+        static Dictionary<string, Func<int>> functions = new Dictionary<string, Func<int>>();
 
         static void Main(string[] args)
         {
@@ -31,6 +34,17 @@ namespace Shell
             colors.Add("darkgreen", ConsoleColor.DarkGreen);
             colors.Add("white", ConsoleColor.White);
             colors.Add("black", ConsoleColor.Black);
+
+            functions.Add("fcolor", new Func<int>(ChangeForeColor));
+            functions.Add("colors", new Func<int>(ShowColors));
+            functions.Add("color", new Func<int>(ShowColors));
+            functions.Add("echo", new Func<int>(Echo));
+            functions.Add("ls", new Func<int>(LsFolders));
+            functions.Add("cd", new Func<int>(CurrentDir));
+            functions.Add("exit", new Func<int>(Exit));
+            functions.Add("clear", new Func<int>(Clear));
+            functions.Add("help", new Func<int>(Help));
+
         }
 
         static void Loop()
@@ -48,45 +62,31 @@ namespace Shell
 
         static void ReturnCommandRes(string command)
         {
-            string[] args = command.Split(' ');
+            Command = command;
+            string[] args = command.ToLower().Split(' ');
+            bool find = false;
 
-            if (args[0] == "fcolor")
+            foreach (var item in functions)
             {
-                ChangeForeColor(args);
+                if(item.Key == args[0])
+                {
+                    item.Value.Invoke();
+                    find = true;
+                    break;
+                }
             }
-            else if (args[0] == "colors" || args[0] == "color")
-            {
-                ShowColors();
-            }
-            else if (args[0] == "echo")
-            {
-                Echo(command);
-            }
-            else if (args[0] == "ls")
-            {
-                LsFolders(command);
-            }
-            else if (args[0] == "cd")
-            {
-                CurrentDir(command);
-            }
-            else if (args[0] == "exit")
-            {
-                Environment.Exit(0);
-            }
-            else if (args[0] == "clear")
-            {
-                Console.Clear();
-            }
-            else if(command.Replace(" ", "") != "")
+            if (command.Replace(" ", "") != "" && !find)
             {
                 Console.WriteLine("Commande non reconnu.");
             }
+
+            Console.WriteLine("");
         }
 
 
-        static void ChangeForeColor(string[] args)
+        static int ChangeForeColor()
         {
+            string[] args = Command.Split(' ');
             bool find = false;
             List<string> _args = GetArgs(args);
             List<string> _values = GetValues(args);
@@ -95,18 +95,18 @@ namespace Shell
             {
                 Console.WriteLine("'fcolor' a beoins d'une valeur pour fonctionner.");
                 Console.WriteLine("Exemple : 'fcolor red'.");
-                return;
+                return 0;
             }
             else if (_values.Count > 2)
             {
                 Console.WriteLine("'fcolor' a beoins d'une seule valeur pour fonctionner.");
                 Console.WriteLine("Exemple : 'fcolor red'.");
-                return;
+                return 0;
             }
             else if (_args.Count > 0)
             {
                 Console.WriteLine("Arguments non reconnus.");
-                return;
+                return 0;
             }
             
             foreach (var item in colors)
@@ -121,18 +121,21 @@ namespace Shell
             if (!find)
             {
                 Console.WriteLine("Couleur non trouvé.");
+                return 0;
             }
+            return 1;
         }
-        static void ShowColors()
+        static int ShowColors()
         {
             foreach (var item in colors)
             {
                 Console.WriteLine(item.Key);
             }
+            return 1;
         }
-        static void Echo(string command)
+        static int Echo()
         {
-            string[] argsStr = command.Split(' ');
+            string[] argsStr = Command.Split(' ');
             int x = 0;
             string ret = "";
             foreach (var item in argsStr)
@@ -144,11 +147,12 @@ namespace Shell
                 x++;
             }
             Console.WriteLine(ret);
+            return 1;
         }
-        static void LsFolders(string command)
+        static int LsFolders()
         {
-            string[] argsStr = command.Split('\"');
-            string[] args = command.Split(' ');
+            string[] argsStr = Command.Split('\"');
+            string[] args = Command.Split(' ');
             List<string> speArgs = GetArgs(args);
             List<string> valArgs = GetValues(args);
             bool list = false;
@@ -183,7 +187,7 @@ namespace Shell
             if (argsStr.Length >= 2 && argsStr.Length != 3)
             {
                 Console.WriteLine("Chemin d'accès non reconnu.");
-                return;
+                return 0;
             }
 
             if (path.Replace(" ", "") == "") path = shellConfig.actualDir;
@@ -195,12 +199,12 @@ namespace Shell
             if (!Directory.Exists(path))
             {
                 Console.WriteLine("Chemin d'accès non reconnu.");
-                return;
+                return 0;
             }
             if (!CanRead(path))
             {
                 Console.WriteLine("Vous n'avez pas l'autorisation de lire ce dossier.");
-                return;
+                return 0;
             }
 
             if (list)
@@ -211,11 +215,12 @@ namespace Shell
                 Console.Write("  " + "..");
                 Console.ForegroundColor = shellConfig.textColor;
                 Console.WriteLine("");
+
                 foreach (var item in Directory.GetDirectories(path))
                 {
-                    DirectoryInfo _dir = new DirectoryInfo(item);
-                    if (CanRead(_dir.FullName))
+                    if (CanRead(item))
                     {
+                        DirectoryInfo _dir = new DirectoryInfo(item);
                         Console.Write(_dir.CreationTime.ToString("dd/mm/yyyy") +
                                          "  " + AddBlankRight("<DIR>", 20));
 
@@ -227,11 +232,11 @@ namespace Shell
                 }
                 foreach (var item in Directory.GetFiles(path))
                 {
-                    FileInfo _file = new FileInfo(item);
-                    IFormatProvider frenchFormatProvider =
-                        new System.Globalization.CultureInfo("fr-FR");
-                    if (CanRead(_file.FullName))
+                    if (CanRead(item))
                     {
+                        FileInfo _file = new FileInfo(item);
+                        IFormatProvider frenchFormatProvider =
+                            new System.Globalization.CultureInfo("fr-FR");
                         Console.WriteLine(_file.CreationTime.ToString("dd/mm/yyyy") +
                                          "  " + AddBlankLeft(_file.Length.ToString("#,##0", frenchFormatProvider), 20) +
                                          "  " + _file.Name + "");
@@ -309,11 +314,12 @@ namespace Shell
                     Console.WriteLine("");
                 }
             }
+            return 1;
         }
-        static void CurrentDir(string command)
+        static int CurrentDir()
         {
-            string[] argsStr = command.Split('\"');
-            string[] args = command.Split(' ');
+            string[] argsStr = Command.Split('\"');
+            string[] args = Command.Split(' ');
 
             string pathToGo = shellConfig.actualDir;
             string path = "";
@@ -336,7 +342,7 @@ namespace Shell
             }
             if(path.Replace(" ", "").Length == 0)
             {
-                return;
+                return 0;
             }
 
             string[] directories = path.Replace("/", "\\").Split('\\');
@@ -384,7 +390,30 @@ namespace Shell
             {
                 Console.WriteLine("Chemin d'accès non reconnu.");
             }
+            return 1;
         }
+        static int Exit()
+        {
+            Environment.Exit(0);
+            return 1;
+        }
+        static int Clear()
+        {
+            Console.Clear();
+            return 1;
+        }
+        static int Help()
+        {
+            foreach (var item in functions)
+            {
+                if(item.Key != "help")
+                {
+                    Console.WriteLine(">" + item.Key);
+                }
+            }
+            return 1;
+        }
+
         static string RemoveLastPathDir(string path)
         {
             int x = path.LastIndexOf('\\');
