@@ -4,15 +4,19 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Threading.Tasks;
-using Shell.Class;
 using System.Security.AccessControl;
+
+using Shell.Class;
+using Shell.Tools;
 
 namespace Shell
 {
     class Program
     {
         static ShellConfig shellConfig;
-        static string Command;
+        static SQLConfig sqlConfig;
+        static List<string> Command;
+        static bool Logged = false;
         static Dictionary<string, ConsoleColor> colors = new Dictionary<string, ConsoleColor>();
 
         static Dictionary<string, Func<int>> functions = new Dictionary<string, Func<int>>();
@@ -25,13 +29,17 @@ namespace Shell
 
         static void Init()
         {
-            shellConfig = new ShellConfig(Environment.CurrentDirectory, ConsoleColor.DarkGreen, ConsoleColor.White);
+            shellConfig = new ShellConfig(Environment.CurrentDirectory, ConsoleColor.Green, ConsoleColor.White);
+            sqlConfig = new SQLConfig();
+
             colors.Add("red", ConsoleColor.Red);
             colors.Add("blue", ConsoleColor.Blue);
             colors.Add("green", ConsoleColor.Green);
             colors.Add("darkred", ConsoleColor.DarkRed);
             colors.Add("darkblue", ConsoleColor.DarkBlue);
             colors.Add("darkgreen", ConsoleColor.DarkGreen);
+            colors.Add("cyan", ConsoleColor.Cyan);
+            colors.Add("darkcyan", ConsoleColor.DarkCyan);
             colors.Add("white", ConsoleColor.White);
             colors.Add("black", ConsoleColor.Black);
 
@@ -44,7 +52,7 @@ namespace Shell
             functions.Add("exit", new Func<int>(Exit));
             functions.Add("clear", new Func<int>(Clear));
             functions.Add("help", new Func<int>(Help));
-
+            functions.Add("sql", new Func<int>(SQL));
         }
 
         static void Loop()
@@ -53,22 +61,24 @@ namespace Shell
             {
                 Console.ForegroundColor = shellConfig.pathColor;
                 Console.WriteLine(shellConfig.actualDir + ">");
-                Console.Write("~$ ");
+                if(Logged)
+                    Console.Write("logged~$ ");
+                else
+                    Console.Write("~$ ");
 
                 Console.ForegroundColor = shellConfig.textColor;
-                ReturnCommandRes(Console.ReadLine());
+                CallCommand(Console.ReadLine());
             }
         }
 
-        static void ReturnCommandRes(string command)
+        static void CallCommand(string command)
         {
-            Command = command;
-            string[] args = command.ToLower().Split(' ');
+            Command = TextTool.CommandToArgs(command);
             bool find = false;
 
             foreach (var item in functions)
             {
-                if(item.Key == args[0])
+                if(item.Key == Command[0])
                 {
                     item.Value.Invoke();
                     find = true;
@@ -79,39 +89,28 @@ namespace Shell
             {
                 Console.WriteLine("Commande non reconnu.");
             }
-
             Console.WriteLine("");
         }
 
-
         static int ChangeForeColor()
         {
-            string[] args = Command.Split(' ');
             bool find = false;
-            List<string> _args = GetArgs(args);
-            List<string> _values = GetValues(args);
-
-            if (_values.Count <= 1)
+            if (Command.Count <= 1)
             {
                 Console.WriteLine("'fcolor' a beoins d'une valeur pour fonctionner.");
                 Console.WriteLine("Exemple : 'fcolor red'.");
-                return 0;
+                return 1;
             }
-            else if (_values.Count > 2)
+            else if (Command.Count > 2)
             {
                 Console.WriteLine("'fcolor' a beoins d'une seule valeur pour fonctionner.");
                 Console.WriteLine("Exemple : 'fcolor red'.");
-                return 0;
+                return 1;
             }
-            else if (_args.Count > 0)
-            {
-                Console.WriteLine("Arguments non reconnus.");
-                return 0;
-            }
-            
+
             foreach (var item in colors)
             {
-                if (item.Key == _values[1])
+                if (item.Key == Command[1])
                 {
                     shellConfig.textColor = item.Value;
                     find = true;
@@ -121,9 +120,9 @@ namespace Shell
             if (!find)
             {
                 Console.WriteLine("Couleur non trouvé.");
-                return 0;
+                return 1;
             }
-            return 1;
+            return 0;
         }
         static int ShowColors()
         {
@@ -131,14 +130,13 @@ namespace Shell
             {
                 Console.WriteLine(item.Key);
             }
-            return 1;
+            return 0;
         }
         static int Echo()
         {
-            string[] argsStr = Command.Split(' ');
             int x = 0;
             string ret = "";
-            foreach (var item in argsStr)
+            foreach (var item in Command)
             {
                 if (x > 0)
                 {
@@ -147,20 +145,18 @@ namespace Shell
                 x++;
             }
             Console.WriteLine(ret);
-            return 1;
+            return 0;
         }
         static int LsFolders()
         {
-            string[] argsStr = Command.Split('\"');
-            string[] args = Command.Split(' ');
-            List<string> speArgs = GetArgs(args);
-            List<string> valArgs = GetValues(args);
+            List<string> speArgs = TextTool.GetArgs(Command);
+            List<string> valArgs = TextTool.GetValues(Command);
             bool list = false;
 
             string path = shellConfig.actualDir;
-            if (argsStr.Length > 1)
+            if (speArgs.Count > 1)
             {
-                path = argsStr[1];
+                path = Command[1];
             }
             else if(valArgs.Count > 1)
             {
@@ -170,7 +166,7 @@ namespace Shell
                 {
                     if(i > 0)
                     {
-                        path += item + " ";
+                        path += item + "";
                     }
                     i++;
                 }
@@ -184,10 +180,10 @@ namespace Shell
                 }
             }
 
-            if (argsStr.Length >= 2 && argsStr.Length != 3)
+            if (speArgs.Count >= 2 && speArgs.Count != 3)
             {
                 Console.WriteLine("Chemin d'accès non reconnu.");
-                return 0;
+                return 1;
             }
 
             if (path.Replace(" ", "") == "") path = shellConfig.actualDir;
@@ -196,22 +192,22 @@ namespace Shell
             {
                 path = shellConfig.actualDir + "\\" + path;
             }
-            if (!Directory.Exists(path))
+            if (!Directory.Exists(path) && !File.Exists(path))
             {
                 Console.WriteLine("Chemin d'accès non reconnu.");
-                return 0;
+                return 1;
             }
             if (!CanRead(path))
             {
                 Console.WriteLine("Vous n'avez pas l'autorisation de lire ce dossier.");
-                return 0;
+                return 1;
             }
 
             if (list)
             {
                 Console.Write(AddBlankLeft(" ", 9) +
                               "  " + AddBlankRight("<DIR>", 20));
-                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.Write("  " + "..");
                 Console.ForegroundColor = shellConfig.textColor;
                 Console.WriteLine("");
@@ -224,7 +220,7 @@ namespace Shell
                         Console.Write(_dir.CreationTime.ToString("dd/mm/yyyy") +
                                          "  " + AddBlankRight("<DIR>", 20));
 
-                        Console.ForegroundColor = ConsoleColor.Blue;
+                        Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.Write("  " + _dir.Name + "\\");
                         Console.ForegroundColor = shellConfig.textColor;
                         Console.WriteLine("");
@@ -302,7 +298,7 @@ namespace Shell
                     {
                         if(_countDir > 0)
                         {
-                            Console.ForegroundColor = ConsoleColor.Blue;
+                            Console.ForegroundColor = ConsoleColor.Cyan;
                             _countDir--;
                         }
                         else
@@ -314,24 +310,21 @@ namespace Shell
                     Console.WriteLine("");
                 }
             }
-            return 1;
+            return 0;
         }
         static int CurrentDir()
         {
-            string[] argsStr = Command.Split('\"');
-            string[] args = Command.Split(' ');
-
             string pathToGo = shellConfig.actualDir;
             string path = "";
-            if (argsStr.Length > 1)
+            if (Command.Count == 2)
             {
-                path = argsStr[1];
+                path = Command[1];
             }
-            else if (args.Length > 1)
+            else
             {
                 path = "";
                 int i = 0;
-                foreach (var item in args)
+                foreach (var item in Command)
                 {
                     if (i > 0)
                     {
@@ -342,7 +335,7 @@ namespace Shell
             }
             if(path.Replace(" ", "").Length == 0)
             {
-                return 0;
+                return 1;
             }
 
             string[] directories = path.Replace("/", "\\").Split('\\');
@@ -390,17 +383,17 @@ namespace Shell
             {
                 Console.WriteLine("Chemin d'accès non reconnu.");
             }
-            return 1;
+            return 0;
         }
         static int Exit()
         {
             Environment.Exit(0);
-            return 1;
+            return 0;
         }
         static int Clear()
         {
             Console.Clear();
-            return 1;
+            return 0;
         }
         static int Help()
         {
@@ -408,10 +401,24 @@ namespace Shell
             {
                 if(item.Key != "help")
                 {
-                    Console.WriteLine(">" + item.Key);
+                    Console.WriteLine(TextTool.StringToWidth(">" + item.Key, 10));
                 }
             }
-            return 1;
+            return 0;
+        }
+        static int SQL()
+        {
+            foreach (var item in Command)
+            {
+                if(item == "-add")
+                {
+
+                    break;
+                }
+            }
+
+
+            return 0;
         }
 
         static string RemoveLastPathDir(string path)
@@ -473,31 +480,6 @@ namespace Shell
                 }
             }
             return item;
-        }
-        static List<string> GetArgs(string[] args)
-        {
-            List<string> _args = new List<string>();
-            foreach (var item in args)
-            {
-                if(item.Length > 0 && item[0] == '-')
-                {
-                    _args.Add(item);
-                }
-            }
-
-            return _args;
-        }
-        static List<string> GetValues(string[] args)
-        {
-            List<string> _args = new List<string>();
-            foreach (var item in args)
-            {
-                if (item.Length > 0 && item[0] != '-')
-                {
-                    _args.Add(item);
-                }
-            }
-            return _args;
         }
         public static bool CanRead(string path)
         {
