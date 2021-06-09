@@ -15,6 +15,7 @@ namespace Shell
     {
         static ShellConfig shellConfig;
         static SQLConfig sqlConfig;
+        static Command _Command;
         static List<string> Command;
         static bool Logged = false;
         static Dictionary<string, ConsoleColor> colors = new Dictionary<string, ConsoleColor>();
@@ -44,6 +45,7 @@ namespace Shell
             colors.Add("black", ConsoleColor.Black);
 
             functions.Add("fcolor", new Func<int>(ChangeForeColor));
+            functions.Add("fg", new Func<int>(ChangeForeColor));
             functions.Add("colors", new Func<int>(ShowColors));
             functions.Add("color", new Func<int>(ShowColors));
             functions.Add("echo", new Func<int>(Echo));
@@ -71,37 +73,38 @@ namespace Shell
             }
         }
 
+
         static void CallCommand(string command)
         {
+            _Command = new Command(command);
             Command = TextTool.CommandToArgs(command);
             bool find = false;
 
             foreach (var item in functions)
             {
-                if(item.Key == Command[0])
+                if(item.Key == _Command.function)
                 {
                     item.Value.Invoke();
                     find = true;
                     break;
                 }
             }
-            if (command.Replace(" ", "") != "" && !find)
+            if (_Command.function.Replace(" ", "") != "" && !find)
             {
                 Console.WriteLine("Commande non reconnu.");
             }
             Console.WriteLine("");
         }
-
         static int ChangeForeColor()
         {
             bool find = false;
-            if (Command.Count <= 1)
+            if (_Command.values.Count == 0)
             {
                 Console.WriteLine("'fcolor' a beoins d'une valeur pour fonctionner.");
                 Console.WriteLine("Exemple : 'fcolor red'.");
                 return 1;
             }
-            else if (Command.Count > 2)
+            else if (_Command.values.Count > 1)
             {
                 Console.WriteLine("'fcolor' a beoins d'une seule valeur pour fonctionner.");
                 Console.WriteLine("Exemple : 'fcolor red'.");
@@ -110,7 +113,7 @@ namespace Shell
 
             foreach (var item in colors)
             {
-                if (item.Key == Command[1])
+                if (item.Key == _Command.values[0])
                 {
                     shellConfig.textColor = item.Value;
                     find = true;
@@ -136,7 +139,7 @@ namespace Shell
         {
             int x = 0;
             string ret = "";
-            foreach (var item in Command)
+            foreach (var item in _Command.baseValues)
             {
                 if (x > 0)
                 {
@@ -149,43 +152,33 @@ namespace Shell
         }
         static int LsFolders()
         {
-            List<string> speArgs = TextTool.GetArgs(Command);
-            List<string> valArgs = TextTool.GetValues(Command);
             bool list = false;
 
             string path = shellConfig.actualDir;
-            if (speArgs.Count > 1)
-            {
-                path = Command[1];
-            }
-            else if(valArgs.Count > 1)
+
+            if (_Command.values.Count > 0)
             {
                 path = "";
-                int i = 0;
-                foreach (var item in valArgs)
+                foreach (var item in _Command.values)
                 {
-                    if(i > 0)
-                    {
-                        path += item + "";
-                    }
-                    i++;
+                    path += item + " ";
                 }
             }
 
-            foreach (var item in speArgs)
+            foreach (var item in _Command.arguments)
             {
                 if(item.ToLower() == "-l" || item.ToLower() == "-list")
                 {
                     list = true;
                 }
+                else
+                {
+                    Console.WriteLine("Argument non reconnu :");
+                    Console.WriteLine("\"" + item + "\"");
+                    return 1;
+                }
             }
-
-            if (speArgs.Count >= 2 && speArgs.Count != 3)
-            {
-                Console.WriteLine("Chemin d'accès non reconnu.");
-                return 1;
-            }
-
+            
             if (path.Replace(" ", "") == "") path = shellConfig.actualDir;
 
             if (Directory.Exists(shellConfig.actualDir + "\\" + path))
@@ -316,73 +309,34 @@ namespace Shell
         {
             string pathToGo = shellConfig.actualDir;
             string path = "";
-            if (Command.Count == 2)
+            
+            int x = 0;
+            foreach (var item in _Command.baseValues)
             {
-                path = Command[1];
+                if(x > 0)
+                    path += item + " ";
+                x++;
+            }
+
+            path = path.Replace("\"", "").Replace("/","\\");
+            if (path[0] != '\\')
+                path = "\\" + path;
+            string pathCombined = path[0] != '\\' ? pathToGo + '\\' + path : pathToGo + path;
+            if (Directory.Exists(pathCombined))
+            {
+                shellConfig.actualDir = Path.GetFullPath(pathCombined);
+            }
+            else if(Directory.Exists(path))
+            {
+                shellConfig.actualDir = Path.GetFullPath(path);
             }
             else
             {
-                path = "";
-                int i = 0;
-                foreach (var item in Command)
-                {
-                    if (i > 0)
-                    {
-                        path += item + " ";
-                    }
-                    i++;
-                }
-            }
-            if(path.Replace(" ", "").Length == 0)
-            {
+                Console.WriteLine(path);
+                Console.WriteLine("Chemin d'accès non reconnu.");
                 return 1;
             }
 
-            string[] directories = path.Replace("/", "\\").Split('\\');
-            if (path[0] == '\\')
-            {
-                pathToGo = "";
-            }
-
-            foreach (var item in directories)
-            {
-                if (item.Replace(" ", "") == "..")
-                {
-                    pathToGo = RemoveLastPathDir(pathToGo);
-                }
-                else if (item.Replace(" ", "") != ".")
-                {
-                    pathToGo += "\\" + item;
-                }
-            }
-            if(directories[directories.Length - 1].Replace(" ", "") == "")
-            {
-                pathToGo = pathToGo.Substring(0, pathToGo.LastIndexOf("\\"));
-            }
-            if(pathToGo[pathToGo.Length - 1] == ' ')
-            {
-                pathToGo = pathToGo.Substring(0, pathToGo.Length - 1);
-            }
-
-            if (Directory.Exists(pathToGo) && CanRead(pathToGo))
-            {
-                shellConfig.actualDir = ClearBlank(pathToGo);
-            }
-            else if (Directory.Exists(path) && CanRead(path))
-            {
-                path = ClearBlank(path).Replace('/', '\\');
-                string nPath = "";
-                foreach (var item in path.Split('\\'))
-                {
-                    if (item.Replace(" ", "") != "") nPath += item + "\\";
-                }
-
-                shellConfig.actualDir = nPath;
-            }
-            else
-            {
-                Console.WriteLine("Chemin d'accès non reconnu.");
-            }
             return 0;
         }
         static int Exit()
@@ -408,7 +362,7 @@ namespace Shell
         }
         static int SQL()
         {
-            foreach (var item in Command)
+            foreach (var item in _Command.arguments)
             {
                 if(item == "-add")
                 {
