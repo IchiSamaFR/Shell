@@ -73,5 +73,51 @@ namespace Shell.Tools
             }
             return _args;
         }
+        public static string AddBlankRight(string item, int length)
+        {
+            if (item == null) return item;
+
+            for (int i = item.Length - 1; i < length; i++)
+            {
+                item += " ";
+            }
+            return item;
+        }
+        public static string ConcatSize(string item, int length)
+        {
+            if (item == null || length <= 0) return "";
+
+            if (length > item.Length)
+            {
+                return item.Substring(0, length);
+            }
+            return item;
+        }
+        public static string AddBlankLeft(string item, int length)
+        {
+            if (item == null) return item;
+
+            for (int i = item.Length - 1; i < length; i++)
+            {
+                item = " " + item;
+            }
+            return item;
+        }
+        public static string ClearBlank(string item)
+        {
+            while (true)
+            {
+                int x = item.LastIndexOf(" ");
+                if (x == item.Length - 1)
+                {
+                    item = item.Substring(0, x - 1);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return item;
+        }
     }
 }

@@ -198,8 +198,8 @@ namespace Shell
 
             if (list)
             {
-                Console.Write(AddBlankLeft(" ", 9) +
-                              "  " + AddBlankRight("<DIR>", 20));
+                Console.Write(TextTool.AddBlankLeft(" ", 9) +
+                              "  " + TextTool.AddBlankRight("<DIR>", 20));
                 Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.Write("  " + "..");
                 Console.ForegroundColor = shellConfig.textColor;
@@ -211,7 +211,7 @@ namespace Shell
                     {
                         DirectoryInfo _dir = new DirectoryInfo(item);
                         Console.Write(_dir.CreationTime.ToString("dd/mm/yyyy") +
-                                         "  " + AddBlankRight("<DIR>", 20));
+                                         "  " + TextTool.AddBlankRight("<DIR>", 20));
 
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.Write("  " + _dir.Name + "\\");
@@ -227,7 +227,7 @@ namespace Shell
                         IFormatProvider frenchFormatProvider =
                             new System.Globalization.CultureInfo("fr-FR");
                         Console.WriteLine(_file.CreationTime.ToString("dd/mm/yyyy") +
-                                         "  " + AddBlankLeft(_file.Length.ToString("#,##0", frenchFormatProvider), 20) +
+                                         "  " + TextTool.AddBlankLeft(_file.Length.ToString("#,##0", frenchFormatProvider), 20) +
                                          "  " + _file.Name + "");
                     }
                 }
@@ -236,6 +236,7 @@ namespace Shell
             {
                 int _x = 0;
                 int _y = 0;
+                int maxSize = 30;
                 int _countDir = 0;
                 int col = 4;
                 int amount = Directory.GetDirectories(path).Length + Directory.GetFiles(path).Length + 1;
@@ -250,10 +251,18 @@ namespace Shell
                     DirectoryInfo _dir = new DirectoryInfo(item);
                     if (CanRead(_dir.FullName))
                     {
-                        colValues[_x, _y] = _dir.Name + "\\";
-                        if (charCol[_x] < (_dir.Name + "\\").Length)
+                        colValues[_x, _y] = _dir.Name;
+                        if (charCol[_x] < _dir.Name.Length)
                         {
-                            charCol[_x] = _dir.Name.Length;
+                            if (_dir.Name.Length > maxSize && maxSize > 0)
+                            {
+                                charCol[_x] = maxSize;
+                                colValues[_x, _y] = _dir.Name.Substring(0, maxSize);
+                            }
+                            else
+                            {
+                                charCol[_x] = _dir.Name.Length;
+                            }
                         }
 
                         _x++;
@@ -273,7 +282,15 @@ namespace Shell
                         colValues[_x, _y] = _file.Name;
                         if (charCol[_x] < _file.Name.Length)
                         {
-                            charCol[_x] = _file.Name.Length;
+                            if(_file.Name.Length > maxSize && maxSize > 0)
+                            {
+                                charCol[_x] = maxSize;
+                                colValues[_x, _y] = _file.Name.Substring(0, maxSize - 4) + "[..]";
+                            }
+                            else
+                            {
+                                charCol[_x] = _file.Name.Length;
+                            }
                         }
 
                         _x++;
@@ -298,7 +315,7 @@ namespace Shell
                         {
                             Console.ForegroundColor = shellConfig.textColor;
                         }
-                        Console.Write(AddBlankRight(colValues[x, y], charCol[x]) + " ");
+                        Console.Write(TextTool.AddBlankRight(colValues[x, y], charCol[x]) + " ");
                     }
                     Console.WriteLine("");
                 }
@@ -319,8 +336,6 @@ namespace Shell
             }
 
             path = path.Replace("\"", "").Replace("/","\\");
-            if (path[0] != '\\')
-                path = "\\" + path;
             string pathCombined = path[0] != '\\' ? pathToGo + '\\' + path : pathToGo + path;
             if (Directory.Exists(pathCombined))
             {
@@ -374,67 +389,7 @@ namespace Shell
 
             return 0;
         }
-
-        static string RemoveLastPathDir(string path)
-        {
-            int x = path.LastIndexOf('\\');
-            if(x == path.Length)
-            {
-                path.Substring(0, x - 1);
-                x = path.LastIndexOf('\\');
-            }
-
-            if(x == 0 || x == -1)
-            {
-                return path;
-            }
-            return path.Substring(0, x);
-        }
-
-        static string AddSpaceThousand(string item)
-        {
-            string[] _item = item.Split('.');
-
-
-
-            return _item.Length == 1 ? _item[0] : _item[0] + "." + _item[1];
-        }
-        static string AddBlankRight(string item, int length)
-        {
-            if (item == null) return item;
-
-            for (int i = item.Length - 1; i < length; i++)
-            {
-                item += " ";
-            }
-            return item;
-        }
-        static string AddBlankLeft(string item, int length)
-        {
-            if (item == null) return item;
-
-            for (int i = item.Length - 1; i < length; i++)
-            {
-                item = " " + item;
-            }
-            return item;
-        }
-        static string ClearBlank(string item)
-        {
-            while (true)
-            {
-                int x = item.LastIndexOf(" ");
-                if (x == item.Length - 1)
-                {
-                    item = item.Substring(0, x - 1);
-                }
-                else
-                {
-                    break;
-                }
-            }
-            return item;
-        }
+        
         public static bool CanRead(string path)
         {
             try
