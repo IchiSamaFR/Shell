@@ -100,13 +100,13 @@ namespace Shell
             bool find = false;
             if (_Command.values.Count == 0)
             {
-                Console.WriteLine("'fcolor' a beoins d'une valeur pour fonctionner.");
+                Console.WriteLine("'fcolor' a besoin d'une valeur pour fonctionner.");
                 Console.WriteLine("Exemple : 'fcolor red'.");
                 return 1;
             }
             else if (_Command.values.Count > 1)
             {
-                Console.WriteLine("'fcolor' a beoins d'une seule valeur pour fonctionner.");
+                Console.WriteLine("'fcolor' a besoin d'une seule valeur pour fonctionner.");
                 Console.WriteLine("Exemple : 'fcolor red'.");
                 return 1;
             }
@@ -377,19 +377,50 @@ namespace Shell
         }
         static int SQL()
         {
+            bool end = false;
             foreach (var item in _Command.arguments)
             {
-                if(item == "-add")
+                if (item == "-add")
+                {
+                    Console.WriteLine("Creation of the data connection.");
+                    Console.Write(" Host : ");
+                    string hs = Console.ReadLine();
+                    Console.Write(" Database : ");
+                    string db = Console.ReadLine();
+                    Console.Write(" Username : ");
+                    string user = Console.ReadLine();
+                    Console.Write(" Password : ");
+                    string pswd = Console.ReadLine();
+
+
+                    sqlConfig.Init(hs, db, user, pswd);
+                    end = true;
+                }
+                else if (item == "-test")
+                {
+                    sqlConfig.TestConnection();
+                    end = true;
+                }
+                else if (item == "-select")
                 {
 
-                    break;
+                    end = true;
+                }
+                else
+                {
+                    Console.WriteLine("Argument non reconnu :");
+                    Console.WriteLine("\"" + item + "\"");
                 }
             }
 
+            if (!end)
+            {
+                Console.WriteLine("'sql' a besoin d'un argument pour fonctionner.");
+            }
 
             return 0;
         }
-        
+
         public static bool CanRead(string path)
         {
             try
