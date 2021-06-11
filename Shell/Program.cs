@@ -63,12 +63,13 @@ namespace Shell
             {
                 Console.ForegroundColor = shellConfig.pathColor;
                 Console.WriteLine(shellConfig.actualDir + ">");
-                if(Logged)
-                    Console.Write("logged~$ ");
-                else
-                    Console.Write("~$ ");
-
+                if (Logged)
+                {
+                    Console.Write("logged");
+                }
+                Console.Write("~$ ");
                 Console.ForegroundColor = shellConfig.textColor;
+
                 CallCommand(Console.ReadLine());
             }
         }
@@ -383,17 +384,22 @@ namespace Shell
                 if (item == "-add")
                 {
                     Console.WriteLine("Creation of the data connection.");
-                    Console.Write(" Host : ");
+                    Console.Write("Host : ");
                     string hs = Console.ReadLine();
-                    Console.Write(" Database : ");
+                    Console.Write("Database : ");
                     string db = Console.ReadLine();
-                    Console.Write(" Username : ");
+                    Console.Write("Username : ");
                     string user = Console.ReadLine();
-                    Console.Write(" Password : ");
+                    Console.Write("Password : ");
                     string pswd = Console.ReadLine();
 
 
                     sqlConfig.Init(hs, db, user, pswd);
+                    end = true;
+                }
+                else if (item == "-load")
+                {
+                    sqlConfig.Load();
                     end = true;
                 }
                 else if (item == "-test")
@@ -401,9 +407,23 @@ namespace Shell
                     sqlConfig.TestConnection();
                     end = true;
                 }
+                else if (item == "-info")
+                {
+                    sqlConfig.Infos();
+                    end = true;
+                }
                 else if (item == "-select")
                 {
+                    string request = " ";
 
+                    while ((request.Replace(" ", "") == "" && request[0] != '\"') || (request[0] == '\"' && request[request.Length - 1] != '\"'))
+                    {
+                        request += " ";
+                        Console.Write("> ");
+                        request += Console.ReadLine();
+                        request = request.Trim();
+                    }
+                    sqlConfig.Select(request);
                     end = true;
                 }
                 else

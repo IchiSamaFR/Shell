@@ -5,6 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+
+using Shell.Tools;
 
 namespace Shell.Class
 {
@@ -21,13 +24,35 @@ namespace Shell.Class
             get => "server=" + a_server + ";database=" + a_db + ";uid=" + a_user + ";pwd=" + a_pwd;
         }
 
+        public void Load()
+        {
+            if (!File.Exists("configSQL.json"))
+            {
+                Console.Write("\rAucune connexion à charger.");
+                return;
+            }
+
+            string jsonGet = File.ReadAllText("configSQL.json");
+            dynamic json = JsonConvert.DeserializeObject(jsonGet);
+            a_server = json.a_server;
+            a_db = json.a_db;
+            a_user = json.a_user;
+            a_pwd = json.a_pwd;
+
+            SQLConn = new SqlConnection();
+            SQLConn.ConnectionString = ConnString;
+
+            Console.Write("\rConnexion chargé.");
+            Console.WriteLine("");
+        }
         public void Init(string server, string db, string user, string pwd)
         {
-            Console.WriteLine("");
             a_server = server;
             a_db = db;
             a_user = user;
             a_pwd = pwd;
+            SQLConn = new SqlConnection();
+            SQLConn.ConnectionString = ConnString;
 
             string jsonFile = "";
             jsonFile += "{";
@@ -43,12 +68,18 @@ namespace Shell.Class
             Console.WriteLine("");
         }
 
+        public void Infos()
+        {
+            Console.WriteLine("serv :" + a_server);
+            Console.WriteLine("data :" + a_db);
+            Console.WriteLine("user :" + a_user);
+            Console.WriteLine("pswd :" + new String('*', a_pwd.Length));
+        }
+
         public int TestConnection()
         {
             try
             {
-                SQLConn = new SqlConnection();
-                SQLConn.ConnectionString = ConnString;
                 SQLConn.Open();
                 SQLConn.Close();
                 Console.WriteLine("Aucun problème n'est survenue lors du test SQL.");
@@ -60,5 +91,56 @@ namespace Shell.Class
                 return 1;
             }
         }
+
+        public void Select(string request)
+        {
+            if(SQLConn == null)
+            {
+                Load();
+            }
+
+
+            List<int> length = new List<int>();
+            Dictionary<int, List<string>> values = new Dictionary<int, List<string>>();
+            SQLConn.Open();
+            SqlCommand SQLCmd = new SqlCommand(request, SQLConn);
+
+            int row = 0;
+            using (SqlDataReader reader = SQLCmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    values.Add(row, new List<string>());
+                    for (int i = 0; i < reader.VisibleFieldCount; i++)
+                    {
+                        if(length.Count <= i)
+                        {
+                            length.Add(reader[i].ToString().Length);
+                        }
+                        else if (length[i] < reader[i].ToString().Length)
+                        {
+                            length[i] = reader[i].ToString().Length;
+                        }
+
+                        values[row].Add(reader[i].ToString());
+                    }
+                    row++;
+                }
+            }
+
+            foreach (var item in values)
+            {
+                int x = 0;
+                foreach (var value in item.Value)
+                {
+                    Console.Write(" " + TextTool.AddBlankRight(value.Trim(), length[x]) + "|");
+                    x++;
+                }
+                Console.WriteLine("");
+            }
+            
+            SQLConn.Close();
+        }
+
     }
 }
