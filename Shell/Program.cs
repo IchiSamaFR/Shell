@@ -416,7 +416,7 @@ namespace Shell
                 {
                     string request = " ";
 
-                    while ((request.Replace(" ", "") == "" && request[0] != '\"') || (request[0] == '\"' && request[request.Length - 1] != '\"'))
+                    while (request.Replace(" ", "").Length == 0 || (request[0] == '\"' && request[request.Length - 1] != '\"'))
                     {
                         request += " ";
                         Console.Write("> ");

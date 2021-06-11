@@ -99,6 +99,11 @@ namespace Shell.Class
                 Load();
             }
 
+            if(request[0] == '"')
+            {
+                request = request.Substring(1, request.LastIndexOf('"') - 1);
+            }
+
 
             List<int> length = new List<int>();
             Dictionary<int, List<string>> values = new Dictionary<int, List<string>>();
@@ -106,26 +111,33 @@ namespace Shell.Class
             SqlCommand SQLCmd = new SqlCommand(request, SQLConn);
 
             int row = 0;
-            using (SqlDataReader reader = SQLCmd.ExecuteReader())
+            try
             {
-                while (reader.Read())
+                using (SqlDataReader reader = SQLCmd.ExecuteReader())
                 {
-                    values.Add(row, new List<string>());
-                    for (int i = 0; i < reader.VisibleFieldCount; i++)
+                    while (reader.Read())
                     {
-                        if(length.Count <= i)
+                        values.Add(row, new List<string>());
+                        for (int i = 0; i < reader.VisibleFieldCount; i++)
                         {
-                            length.Add(reader[i].ToString().Length);
-                        }
-                        else if (length[i] < reader[i].ToString().Length)
-                        {
-                            length[i] = reader[i].ToString().Length;
-                        }
+                            if (length.Count <= i)
+                            {
+                                length.Add(reader[i].ToString().Length);
+                            }
+                            else if (length[i] < reader[i].ToString().Length)
+                            {
+                                length[i] = reader[i].ToString().Length;
+                            }
 
-                        values[row].Add(reader[i].ToString());
+                            values[row].Add(reader[i].ToString());
+                        }
+                        row++;
                     }
-                    row++;
                 }
+            }
+            catch
+            {
+                Console.WriteLine("La requête n'a pu aboutir.");
             }
 
             foreach (var item in values)
