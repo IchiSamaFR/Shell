@@ -15,8 +15,7 @@ namespace Shell
     {
         static ShellConfig shellConfig;
         static SQLConfig sqlConfig;
-        static Command _Command;
-        static List<string> Command;
+        static Command Command;
         static bool Logged = false;
         static Dictionary<string, ConsoleColor> colors = new Dictionary<string, ConsoleColor>();
 
@@ -50,7 +49,8 @@ namespace Shell
             functions.Add("color", new Function("color", "interface", new Func<int>(ShowColors)));
 
             functions.Add("ls", new Function("ls", "directory", new Func<int>(LsFolders)));
-            functions.Add("cd", new Function("ls", "directory", new Func<int>(CurrentDir)));
+            functions.Add("cd", new Function("cd", "directory", new Func<int>(CurrentDir)));
+            functions.Add("cat", new Function("cat", "directory", new Func<int>(Cat)));
             
             functions.Add("echo", new Function("echo", "tool", new Func<int>(Echo)));
             functions.Add("exit", new Function("exit", "tool", new Func<int>(Exit)));
@@ -79,20 +79,19 @@ namespace Shell
 
         static void CallCommand(string command)
         {
-            _Command = new Command(command);
-            Command = TextTool.CommandToArgs(command);
+            Command = new Command(command);
             bool find = false;
 
             foreach (var item in functions)
             {
-                if(item.Key == _Command.function)
+                if(item.Key == Command.function)
                 {
                     item.Value.ToCall.Invoke();
                     find = true;
                     break;
                 }
             }
-            if (_Command.function.Replace(" ", "") != "" && !find)
+            if (Command.function.Replace(" ", "") != "" && !find)
             {
                 Console.WriteLine("Commande non reconnu.");
             }
@@ -101,13 +100,13 @@ namespace Shell
         static int ChangeForeColor()
         {
             bool find = false;
-            if (_Command.values.Count == 0)
+            if (Command.values.Count == 0)
             {
                 Console.WriteLine("'fcolor' a besoin d'une valeur pour fonctionner.");
                 Console.WriteLine("Exemple : 'fcolor red'.");
                 return 1;
             }
-            else if (_Command.values.Count > 1)
+            else if (Command.values.Count > 1)
             {
                 Console.WriteLine("'fcolor' a besoin d'une seule valeur pour fonctionner.");
                 Console.WriteLine("Exemple : 'fcolor red'.");
@@ -116,7 +115,7 @@ namespace Shell
 
             foreach (var item in colors)
             {
-                if (item.Key == _Command.values[0])
+                if (item.Key == Command.values[0])
                 {
                     shellConfig.textColor = item.Value;
                     find = true;
@@ -142,7 +141,7 @@ namespace Shell
         {
             int x = 0;
             string ret = "";
-            foreach (var item in _Command.baseValues)
+            foreach (var item in Command.baseValues)
             {
                 if (x > 0)
                 {
@@ -159,16 +158,16 @@ namespace Shell
 
             string path = shellConfig.actualDir;
 
-            if (_Command.values.Count > 0)
+            if (Command.values.Count > 0)
             {
                 path = "";
-                foreach (var item in _Command.values)
+                foreach (var item in Command.values)
                 {
                     path += item + " ";
                 }
             }
 
-            foreach (var item in _Command.arguments)
+            foreach (var item in Command.arguments)
             {
                 if(item.ToLower() == "-l" || item.ToLower() == "-list")
                 {
@@ -331,7 +330,7 @@ namespace Shell
             string path = "";
             
             int x = 0;
-            foreach (var item in _Command.baseValues)
+            foreach (var item in Command.baseValues)
             {
                 if(x > 0)
                     path += item + " ";
@@ -351,6 +350,47 @@ namespace Shell
             else
             {
                 Console.WriteLine(path);
+                Console.WriteLine("Chemin d'accès non reconnu.");
+                return 1;
+            }
+
+            return 0;
+        }
+        static int Cat()
+        {
+            string pathToGo = shellConfig.actualDir;
+            string pathSource = "";
+            string pathDest = "";
+            bool copyLeft = false;
+
+            if(Command.values.Count == 3 && Command.values[1] == ">")
+            {
+                copyLeft = true;
+                pathDest = shellConfig.actualDir + "\\" + Command.values[2];
+            }
+
+            if(Command.values.Count > 0)
+            {
+                pathSource = shellConfig.actualDir + "\\" + Command.values[0];
+            }
+
+
+            if (File.Exists(pathSource))
+            {
+                if (copyLeft)
+                {
+                    File.Copy(pathSource, pathDest, true);
+                }
+                else
+                {
+                    foreach (var item in File.ReadAllLines(pathSource))
+                    {
+                        Console.WriteLine(item);
+                    }
+                }
+            }
+            else
+            {
                 Console.WriteLine("Chemin d'accès non reconnu.");
                 return 1;
             }
@@ -381,7 +421,7 @@ namespace Shell
         static int SQL()
         {
             bool end = false;
-            foreach (var item in _Command.arguments)
+            foreach (var item in Command.arguments)
             {
                 if (item == "-add")
                 {
