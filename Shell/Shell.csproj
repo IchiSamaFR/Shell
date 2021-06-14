@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class\Command.cs" />
+    <Compile Include="Class\Function.cs" />
     <Compile Include="Class\JsonManager.cs" />
     <Compile Include="Class\ShellConfig.cs" />
     <Compile Include="Class\SQLConfig.cs" />

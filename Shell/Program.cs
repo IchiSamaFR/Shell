@@ -20,7 +20,7 @@ namespace Shell
         static bool Logged = false;
         static Dictionary<string, ConsoleColor> colors = new Dictionary<string, ConsoleColor>();
 
-        static Dictionary<string, Func<int>> functions = new Dictionary<string, Func<int>>();
+        static Dictionary<string, Function> functions = new Dictionary<string, Function>();
 
         static void Main(string[] args)
         {
@@ -44,17 +44,19 @@ namespace Shell
             colors.Add("white", ConsoleColor.White);
             colors.Add("black", ConsoleColor.Black);
 
-            functions.Add("fcolor", new Func<int>(ChangeForeColor));
-            functions.Add("fg", new Func<int>(ChangeForeColor));
-            functions.Add("colors", new Func<int>(ShowColors));
-            functions.Add("color", new Func<int>(ShowColors));
-            functions.Add("echo", new Func<int>(Echo));
-            functions.Add("ls", new Func<int>(LsFolders));
-            functions.Add("cd", new Func<int>(CurrentDir));
-            functions.Add("exit", new Func<int>(Exit));
-            functions.Add("clear", new Func<int>(Clear));
-            functions.Add("help", new Func<int>(Help));
-            functions.Add("sql", new Func<int>(SQL));
+            functions.Add("fcolor", new Function("fcolor", "interface", new Func<int>(ChangeForeColor)));
+            functions.Add("fg", new Function("fcolor", "interface", new Func<int>(ChangeForeColor)));
+            functions.Add("colors", new Function("colors", "interface", new Func<int>(ShowColors)));
+            functions.Add("color", new Function("color", "interface", new Func<int>(ShowColors)));
+
+            functions.Add("ls", new Function("ls", "directory", new Func<int>(LsFolders)));
+            functions.Add("cd", new Function("ls", "directory", new Func<int>(CurrentDir)));
+            
+            functions.Add("echo", new Function("echo", "tool", new Func<int>(Echo)));
+            functions.Add("exit", new Function("exit", "tool", new Func<int>(Exit)));
+            functions.Add("clear", new Function("clear", "tool", new Func<int>(Clear)));
+            functions.Add("help", new Function("help", "tool", new Func<int>(Help)));
+            functions.Add("sql", new Function("sql", "tool", new Func<int>(SQL)));
         }
 
         static void Loop()
@@ -67,7 +69,7 @@ namespace Shell
                 {
                     Console.Write("logged");
                 }
-                Console.Write("~$ ");
+                Console.Write("~ ");
                 Console.ForegroundColor = shellConfig.textColor;
 
                 CallCommand(Console.ReadLine());
@@ -85,7 +87,7 @@ namespace Shell
             {
                 if(item.Key == _Command.function)
                 {
-                    item.Value.Invoke();
+                    item.Value.ToCall.Invoke();
                     find = true;
                     break;
                 }
