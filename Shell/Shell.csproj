@@ -49,15 +49,17 @@
     <Compile Include="Class\Command.cs" />
     <Compile Include="Class\Function.cs" />
     <Compile Include="Class\JsonManager.cs" />
-    <Compile Include="Class\ShellConfig.cs" />
-    <Compile Include="Class\SQLConfig.cs" />
+    <Compile Include="Class\Config\ShellConfig.cs" />
+    <Compile Include="Class\Config\SQLConfig.cs" />
+    <Compile Include="Class\Main.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tools\TextTool.cs" />
+    <Compile Include="Class\Tools\TextTool.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -7,9 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-using Shell.Tools;
+using Shell.Class.Tools;
 
-namespace Shell.Class
+namespace Shell.Class.Config
 {
     public class SQLConfig
     {
@@ -99,9 +99,13 @@ namespace Shell.Class
                 Load();
             }
 
-            if(request[0] == '"')
+            if(request[0] == '"' && request.Length > 1)
             {
                 request = request.Substring(1, request.LastIndexOf('"') - 1);
+            }
+            else
+            {
+                return;
             }
 
 
@@ -118,6 +122,24 @@ namespace Shell.Class
                     while (reader.Read())
                     {
                         values.Add(row, new List<string>());
+                        if(row == 0)
+                        {
+                            for (int i = 0; i < reader.VisibleFieldCount; i++)
+                            {
+                                
+                                if (length.Count <= i)
+                                {
+                                    length.Add(reader.GetName(i).Length);
+                                }
+                                else if (length[i] < reader.GetName(i).Length)
+                                {
+                                    length[i] = reader.GetName(i).Length;
+                                }
+
+                                values[row].Add(reader.GetName(i).ToString());
+                            }
+                            row++;
+                        }
                         for (int i = 0; i < reader.VisibleFieldCount; i++)
                         {
                             if (length.Count <= i)
