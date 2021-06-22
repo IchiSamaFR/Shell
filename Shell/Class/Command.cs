@@ -39,7 +39,7 @@ namespace Shell.Class
             {
                 if (i % 2 == 1)
                 {
-                    tempValues.Add("\"" + newCommand[i].Substring(0) + "\"");
+                    tempValues.Add("" + newCommand[i].Substring(0) + "");
                 }
                 else
                 {
@@ -60,7 +60,7 @@ namespace Shell.Class
                         continue;
                     }
 
-                    if (item[0] == '-')
+                    if (item[0] == '-' || item[0] == '>' || item[0] == '<')
                     {
                         arguments.Add(item);
                     }

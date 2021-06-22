@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Shell.Class.Config;
 using Shell.Class.Tools;
 using System.Security.AccessControl;
+using System.Globalization;
 
 namespace Shell.Class
 {
@@ -457,11 +458,45 @@ namespace Shell.Class
             string pathSource = "";
             string pathDest = "";
             bool copyLeft = false;
+            bool creatDate = false;
+            string creatDateV = "";
+            bool modifDate = false;
+            string modifDateV = "";
+            int ind = 1;
 
-            if (Command.values.Count == 3 && Command.values[1] == ">")
+            foreach (var item in Command.arguments)
             {
-                copyLeft = true;
-                pathDest = shellConfig.actualDir + "\\" + Command.values[2];
+                if (item == ">")
+                {
+                    copyLeft = true;
+                    pathDest = shellConfig.actualDir + "\\" + Command.values[1];
+                }
+                else if (item == "-cd")
+                {
+                    creatDate = true;
+                    if (copyLeft)
+                    {
+                        creatDateV = Command.values[1 + ind];
+                    }
+                    else
+                    {
+                        creatDateV = Command.values[0 + ind];
+                    }
+                    ind++;
+                }
+                else if (item == "-md")
+                {
+                    modifDate = true;
+                    if (copyLeft)
+                    {
+                        modifDateV = Command.values[1 + ind];
+                    }
+                    else
+                    {
+                        modifDateV = Command.values[0 + ind];
+                    }
+                    ind++;
+                }
             }
 
             if (Command.values.Count > 0)
@@ -476,7 +511,7 @@ namespace Shell.Class
                 {
                     File.Copy(pathSource, pathDest, true);
                 }
-                else
+                else if (!creatDate && !modifDate)
                 {
                     foreach (var item in File.ReadAllLines(pathSource))
                     {
@@ -488,6 +523,21 @@ namespace Shell.Class
             {
                 Console.WriteLine("Chemin d'accès non reconnu.");
                 return 1;
+            }
+
+            string pathDate = pathDest != "" ? pathDest : pathSource;
+
+            if (creatDate)
+            {
+                CultureInfo culture = new CultureInfo("fr-FR");
+                DateTime tempDate = Convert.ToDateTime(creatDateV, culture);
+                File.SetLastWriteTime(pathDate, tempDate);
+            }
+            if (modifDate)
+            {
+                CultureInfo culture = new CultureInfo("fr-FR");
+                DateTime tempDate = Convert.ToDateTime(modifDateV, culture);
+                File.SetLastWriteTime(pathDate, tempDate);
             }
 
             return 0;
