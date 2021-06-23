@@ -464,6 +464,24 @@ namespace Shell.Class
             string modifDateV = "";
             int ind = 1;
 
+
+            if (Command.values.Count > 0)
+            {
+                if (Path.IsPathRooted(Command.values[0]))
+                {
+                    pathSource = Command.values[0];
+                }
+                else
+                {
+                    pathSource = shellConfig.actualDir + "\\" + Command.values[0];
+                }
+            }
+            else
+            {
+                Console.WriteLine("Aucune chemin d'accès detecté.");
+                return 1;
+            }
+
             foreach (var item in Command.arguments)
             {
                 if (item == ">")
@@ -497,11 +515,6 @@ namespace Shell.Class
                     }
                     ind++;
                 }
-            }
-
-            if (Command.values.Count > 0)
-            {
-                pathSource = shellConfig.actualDir + "\\" + Command.values[0];
             }
 
 
