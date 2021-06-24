@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -118,6 +119,20 @@ namespace Shell.Class.Tools
                 }
             }
             return item;
+        }
+
+        public static bool IsDateTime(string date)
+        {
+            try
+            {
+                CultureInfo culture = new CultureInfo("fr-FR");
+                DateTime tempDate = Convert.ToDateTime(date, culture);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

@@ -25,14 +25,6 @@ namespace Shell.Class
         {
             List<string> tempValues = new List<string>();
             List<string> newCommand = new List<string>();
-            
-            foreach (var item in str.Split(' '))
-            {
-                if(item != "")
-                {
-                    baseValues.Add(item);
-                }
-            }
 
             newCommand = str.Split('\"').ToList();
             for (int i = 0; i < newCommand.Count; i++)
@@ -44,9 +36,16 @@ namespace Shell.Class
                 else
                 {
                     str = Regex.Replace(str, " {2,}", " ");
-                    tempValues.AddRange(newCommand[i].Split(' '));
+                    foreach (var item in newCommand[i].Split(' '))
+                    {
+                        if(item.Replace(" ", "") != "")
+                        {
+                            tempValues.Add(item);
+                        }
+                    }
                 }
             }
+            baseValues.AddRange(tempValues);
 
             int x = -1;
             foreach (var item in tempValues)
@@ -70,6 +69,15 @@ namespace Shell.Class
                     }
                 }
             }
+        }
+
+        public string GetBaseValue(int ind)
+        {
+            if(baseValues.Count > ind)
+            {
+                return baseValues[ind];
+            }
+            return "";
         }
     }
 }

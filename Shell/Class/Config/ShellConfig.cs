@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Shell.Class.Config
 {
-    class ShellConfig
+    public class ShellConfig
     {
         public string actualDir;
         public ConsoleColor pathColor;

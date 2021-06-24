@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Shell.Class.Config;
+using Shell.Class.Functions;
 using Shell.Class.Tools;
 using System.Security.AccessControl;
 using System.Globalization;
@@ -14,8 +15,8 @@ namespace Shell.Class
 {
     public class Main
     {
-        static ShellConfig shellConfig;
-        static SQLConfig sqlConfig;
+        public static ShellConfig shellConfig;
+        public static SQLConfig sqlConfig;
         public static Command Command;
         public static bool Logged = false;
         public static Dictionary<string, ConsoleColor> colors = new Dictionary<string, ConsoleColor>();
@@ -55,7 +56,7 @@ namespace Shell.Class
             functions.Add("ls", new Function("ls", "directory", new Func<int>(LsFolders)));
             functions.Add("cd", new Function("cd", "directory", new Func<int>(CurrentDir)));
             functions.Add("find", new Function("find", "directory", new Func<int>(Find)));
-            functions.Add("cat", new Function("cat", "directory", new Func<int>(Cat)));
+            functions.Add("cat", new Function("cat", "directory", new Func<int>(CatFunction.Cat)));
 
             functions.Add("echo", new Function("echo", "tool", new Func<int>(Echo)));
             functions.Add("exit", new Function("exit", "tool", new Func<int>(Exit)));
@@ -452,109 +453,7 @@ namespace Shell.Class
 
             return 0;
         }
-        private int Cat()
-        {
-            string pathToGo = shellConfig.actualDir;
-            string pathSource = "";
-            string pathDest = "";
-            bool copyLeft = false;
-            bool creatDate = false;
-            string creatDateV = "";
-            bool modifDate = false;
-            string modifDateV = "";
-            int ind = 1;
 
-
-            if (Command.values.Count > 0)
-            {
-                if (Path.IsPathRooted(Command.values[0]))
-                {
-                    pathSource = Command.values[0];
-                }
-                else
-                {
-                    pathSource = shellConfig.actualDir + "\\" + Command.values[0];
-                }
-            }
-            else
-            {
-                Console.WriteLine("Aucune chemin d'accès detecté.");
-                return 1;
-            }
-
-            foreach (var item in Command.arguments)
-            {
-                if (item == ">")
-                {
-                    copyLeft = true;
-                    pathDest = shellConfig.actualDir + "\\" + Command.values[1];
-                }
-                else if (item == "-cd")
-                {
-                    creatDate = true;
-                    if (copyLeft)
-                    {
-                        creatDateV = Command.values[1 + ind];
-                    }
-                    else
-                    {
-                        creatDateV = Command.values[0 + ind];
-                    }
-                    ind++;
-                }
-                else if (item == "-md")
-                {
-                    modifDate = true;
-                    if (copyLeft)
-                    {
-                        modifDateV = Command.values[1 + ind];
-                    }
-                    else
-                    {
-                        modifDateV = Command.values[0 + ind];
-                    }
-                    ind++;
-                }
-            }
-
-
-            if (File.Exists(pathSource))
-            {
-                if (copyLeft)
-                {
-                    File.Copy(pathSource, pathDest, true);
-                }
-                else if (!creatDate && !modifDate)
-                {
-                    foreach (var item in File.ReadAllLines(pathSource))
-                    {
-                        Console.WriteLine(item);
-                    }
-                }
-            }
-            else
-            {
-                Console.WriteLine("Chemin d'accès non reconnu.");
-                return 1;
-            }
-
-            string pathDate = pathDest != "" ? pathDest : pathSource;
-
-            if (creatDate)
-            {
-                CultureInfo culture = new CultureInfo("fr-FR");
-                DateTime tempDate = Convert.ToDateTime(creatDateV, culture);
-                File.SetLastWriteTime(pathDate, tempDate);
-            }
-            if (modifDate)
-            {
-                CultureInfo culture = new CultureInfo("fr-FR");
-                DateTime tempDate = Convert.ToDateTime(modifDateV, culture);
-                File.SetLastWriteTime(pathDate, tempDate);
-            }
-
-            return 0;
-        }
         private int Exit()
         {
             Environment.Exit(0);
