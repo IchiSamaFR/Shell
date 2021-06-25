@@ -80,6 +80,7 @@ namespace Shell.Class.Config
         {
             try
             {
+                if (SQLConn == null) Load();
                 SQLConn.Open();
                 SQLConn.Close();
                 Console.WriteLine("Aucun problème n'est survenue lors du test SQL.");
