@@ -18,7 +18,7 @@ namespace Shell.Class.Functions
         static string pathDest;
         static string creatDateV;
         static string modifDateV;
-        static int index;
+        static int index; 
 
         public static int Cat()
         {
@@ -33,33 +33,48 @@ namespace Shell.Class.Functions
 
             if (command.values.Count > 0)
             {
-                if (IsCopy() == 0)
+                int res = 0;
+                if ((res = IsCopy()) == 0)
                 {
-                    if (IsModifDate(index) == 0)
+                    if ((res = IsModifDate()) == 0)
                     {
-                        if (IsCreateDate(index) == 2) return 1;
+                        res = IsCreateDate();
+                        if (res == 2) return 1;
                     }
-                    else if (IsCreateDate(index) == 0)
+                    else if (res != 2 && (res = IsCreateDate()) == 0)
                     {
-                        if(IsModifDate(index) == 2) return 1;
+                        res = IsModifDate();
+                        if (res == 2) return 1;
                     }
                     else if (command.GetBaseValue(index) != "")
                     {
-                        Console.WriteLine("Arguments non reconnu.");
+                        if(res != 2)
+                        {
+                            Console.WriteLine("Arguments non reconnu.");
+                        }
                         return 1;
                     }
                 }
-                else if (IsModifDate(index) == 0)
+                else if (res != 2 && (res = IsModifDate()) == 0)
                 {
-                    if (IsCreateDate(index) == 2) return 1;
+                    res = IsCreateDate();
+                    if (res == 2) return 1;
                 }
-                else if (IsCreateDate(index) == 0)
+                else if (res != 2 && (res = IsCreateDate()) == 0)
                 {
-                    if (IsModifDate(index) == 2) return 1;
+                    res = IsModifDate();
+                    if (res == 2) return 1;
+                }
+                else if (res != 2 && (res = IsShow()) == 0)
+                {
+                    return 0;
                 }
                 else
                 {
-                    Console.WriteLine("Valeurs non reconnu.");
+                    if (res != 2)
+                    {
+                        Console.WriteLine("Valeurs non reconnu.");
+                    }
                     return 1;
                 }
             }
@@ -150,11 +165,10 @@ namespace Shell.Class.Functions
                 return 1;
             }
         }
-        static int IsModifDate(int index)
+        static int IsModifDate()
         {
             if (index != 1 && (command.GetBaseValue(index) == "-md" || command.GetBaseValue(index) == "-modifdate"))
             {
-                Console.WriteLine(command.GetBaseValue(index + 1));
                 if (TextTool.IsDateTime(command.GetBaseValue(index + 1)))
                 {
                     modifDateV = command.GetBaseValue(index + 1);
@@ -188,14 +202,15 @@ namespace Shell.Class.Functions
                 return 1;
             }
         }
-        static int IsCreateDate(int index)
+        static int IsCreateDate()
         {
-            if (index != 1 && (command.GetBaseValue(index) == "-md" || command.GetBaseValue(index) == "-createdate"))
+            if (index != 1 && (command.GetBaseValue(index) == "-cd" || command.GetBaseValue(index) == "-createdate"))
             {
                 if (TextTool.IsDateTime(command.GetBaseValue(index + 1)))
                 {
                     creatDateV = command.GetBaseValue(index + 1);
                     index += 2;
+                    Console.WriteLine(creatDateV);
                     return 0;
                 }
                 else
@@ -216,6 +231,30 @@ namespace Shell.Class.Functions
                 else
                 {
                     Console.WriteLine("Date non reconnu.");
+                    return 2;
+                }
+            }
+            else
+            {
+                return 1;
+            }
+        }
+        static int IsShow()
+        {
+            if (command.GetBaseValue(index) != "")
+            {
+                if (command.GetBaseValue(index + 1) == "" && File.Exists(command.GetBaseValue(index)))
+                {
+                    foreach (var item in File.ReadAllLines(command.GetBaseValue(index)))
+                    {
+                        Console.WriteLine(item);
+                    }
+                    index += 1;
+                    return 0;
+                }
+                else
+                {
+                    Console.WriteLine("Fichier non reconnu.");
                     return 2;
                 }
             }
