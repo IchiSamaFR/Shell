@@ -23,7 +23,6 @@ namespace Shell.Class.Functions
         public static int Cat()
         {
             command = Main.Command;
-            string pathToGo = Main.shellConfig.actualDir;
             pathSource = "";
             pathDest = "";
             creatDateV = "";
@@ -145,12 +144,14 @@ namespace Shell.Class.Functions
         }
         static int IsCopy()
         {
-            if (command.GetBaseValue(index) != "" && command.GetBaseValue(index + 1) == ">")
+            string val = command.GetBaseValue(index).Replace("\"", "");
+            string val2 = command.GetBaseValue(index + 2).Replace("\"", "");
+            if (val != "" && command.GetBaseValue(index + 1) == ">")
             {
-                if (command.GetBaseValue(index + 2) != "")
+                if (val2 != "")
                 {
-                    pathSource = command.GetBaseValue(index);
-                    pathDest = command.GetBaseValue(index + 2);
+                    pathSource = val;
+                    pathDest = val2;
                     index += 3;
                     return 0;
                 }

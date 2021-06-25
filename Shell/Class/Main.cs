@@ -55,7 +55,7 @@ namespace Shell.Class
 
             functions.Add("ls", new Function("ls", "directory", new Func<int>(LsFolders)));
             functions.Add("cd", new Function("cd", "directory", new Func<int>(CurrentDir)));
-            functions.Add("find", new Function("find", "directory", new Func<int>(Find)));
+            functions.Add("find", new Function("find", "directory", new Func<int>(FindFunction.Find)));
             functions.Add("cat", new Function("cat", "directory", new Func<int>(CatFunction.Cat)));
 
             functions.Add("echo", new Function("echo", "tool", new Func<int>(Echo)));
@@ -361,92 +361,6 @@ namespace Shell.Class
             else
             {
                 Console.WriteLine(path);
-                Console.WriteLine("Chemin d'accès non reconnu.");
-                return 1;
-            }
-
-            return 0;
-        }
-        private int Find()
-        {
-            string pathSource = "";
-            string toFind = "";
-            bool showLine = false;
-
-            if (Command.values.Count <= 0) return 1;
-
-            foreach (var item in Command.arguments)
-            {
-                if (item == "-sl" || item == "-showline")
-                {
-                    showLine = true;
-                }
-                else
-                {
-                    Console.WriteLine("Argument non reconnu :");
-                    Console.WriteLine("\"" + item + "\"");
-                    return 1;
-                }
-            }
-
-            toFind = Command.values[0];
-            if (Command.values.Count > 1)
-            {
-                if (Path.IsPathRooted(Command.values[1]))
-                {
-                    pathSource = Command.values[1];
-                }
-                else
-                {
-                    pathSource = shellConfig.actualDir + "\\" + Command.values[1];
-                }
-            }
-            else
-            {
-                pathSource = shellConfig.actualDir;
-            }
-
-
-            if (File.Exists(pathSource))
-            {
-                if (showLine)
-                {
-                    string line = DirectoryTool.GetLinesInFile(pathSource, toFind);
-                    if (line != "")
-                    {
-                        Console.WriteLine(line);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Ligne non trouvée.");
-                    }
-                }
-                else
-                {
-                    if (DirectoryTool.FindInFile(pathSource, toFind))
-                    {
-                        Console.WriteLine("Ligne trouvée.");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Ligne non trouvée.");
-                    }
-                }
-            }
-            else if (Directory.Exists(pathSource))
-            {
-                List<string> files = DirectoryTool.GetFiles(pathSource);
-
-                foreach (var item in files)
-                {
-                    if (DirectoryTool.FindInFile(item, toFind))
-                    {
-                        Console.WriteLine(item.Substring(pathSource.Length, item.Length - pathSource.Length));
-                    }
-                }
-            }
-            else
-            {
                 Console.WriteLine("Chemin d'accès non reconnu.");
                 return 1;
             }

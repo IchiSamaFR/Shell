@@ -32,6 +32,7 @@ namespace Shell.Class
                 if (i % 2 == 1)
                 {
                     tempValues.Add("" + newCommand[i].Substring(0) + "");
+                    baseValues.Add("\"" + newCommand[i].Substring(0) + "\"");
                 }
                 else
                 {
@@ -41,11 +42,11 @@ namespace Shell.Class
                         if(item.Replace(" ", "") != "")
                         {
                             tempValues.Add(item);
+                            baseValues.Add(item);
                         }
                     }
                 }
             }
-            baseValues.AddRange(tempValues);
 
             int x = -1;
             foreach (var item in tempValues)
