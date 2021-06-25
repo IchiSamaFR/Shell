@@ -50,6 +50,7 @@
     <Compile Include="Class\Function.cs" />
     <Compile Include="Class\Functions\CatFunction.cs" />
     <Compile Include="Class\Functions\FindFunction.cs" />
+    <Compile Include="Class\Functions\LsFunction.cs" />
     <Compile Include="Class\JsonManager.cs" />
     <Compile Include="Class\Config\ShellConfig.cs" />
     <Compile Include="Class\Config\SQLConfig.cs" />
