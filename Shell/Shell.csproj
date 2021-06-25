@@ -49,6 +49,7 @@
     <Compile Include="Class\Command.cs" />
     <Compile Include="Class\Function.cs" />
     <Compile Include="Class\Functions\CatFunction.cs" />
+    <Compile Include="Class\Functions\DirFunction.cs" />
     <Compile Include="Class\Functions\FindFunction.cs" />
     <Compile Include="Class\Functions\LsFunction.cs" />
     <Compile Include="Class\JsonManager.cs" />

@@ -54,7 +54,7 @@ namespace Shell.Class
             functions.Add("color", new Function("color", "interface", new Func<int>(ShowColors)));
 
             functions.Add("ls", new Function("ls", "directory", new Func<int>(LsFunction.LsFolders)));
-            functions.Add("cd", new Function("cd", "directory", new Func<int>(CurrentDir)));
+            functions.Add("cd", new Function("cd", "directory", new Func<int>(DirFunction.CurrentDir)));
             functions.Add("find", new Function("find", "directory", new Func<int>(FindFunction.Find)));
             functions.Add("cat", new Function("cat", "directory", new Func<int>(CatFunction.Cat)));
 
@@ -164,39 +164,6 @@ namespace Shell.Class
             return 1;
         }
         
-        private int CurrentDir()
-        {
-            string pathToGo = shellConfig.actualDir;
-            string path = "";
-
-            int x = 0;
-            foreach (var item in Command.baseValues)
-            {
-                if (x > 0)
-                    path += item + " ";
-                x++;
-            }
-
-            path = path.Replace("\"", "").Replace("/", "\\");
-            string pathCombined = path[0] != '\\' ? pathToGo + '\\' + path : pathToGo + path;
-            if (Directory.Exists(pathCombined))
-            {
-                shellConfig.actualDir = Path.GetFullPath(pathCombined);
-            }
-            else if (Directory.Exists(path))
-            {
-                shellConfig.actualDir = Path.GetFullPath(path);
-            }
-            else
-            {
-                Console.WriteLine(path);
-                Console.WriteLine("Chemin d'accès non reconnu.");
-                return 0;
-            }
-
-            return 1;
-        }
-
         private int Exit()
         {
             Environment.Exit(0);
