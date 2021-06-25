@@ -38,12 +38,12 @@ namespace Shell.Class.Functions
                     if ((res = IsModifDate()) == 0)
                     {
                         res = IsCreateDate();
-                        if (res == 2) return 1;
+                        if (res == 2) return 0;
                     }
                     else if (res != 2 && (res = IsCreateDate()) == 0)
                     {
                         res = IsModifDate();
-                        if (res == 2) return 1;
+                        if (res == 2) return 0;
                     }
                     else if (command.GetBaseValue(index) != "")
                     {
@@ -51,22 +51,22 @@ namespace Shell.Class.Functions
                         {
                             Console.WriteLine("Arguments non reconnu.");
                         }
-                        return 1;
+                        return 0;
                     }
                 }
                 else if (res != 2 && (res = IsModifDate()) == 0)
                 {
                     res = IsCreateDate();
-                    if (res == 2) return 1;
+                    if (res == 2) return 0;
                 }
                 else if (res != 2 && (res = IsCreateDate()) == 0)
                 {
                     res = IsModifDate();
-                    if (res == 2) return 1;
+                    if (res == 2) return 0;
                 }
                 else if (res != 2 && (res = IsShow()) == 0)
                 {
-                    return 0;
+                    return 1;
                 }
                 else
                 {
@@ -74,13 +74,13 @@ namespace Shell.Class.Functions
                     {
                         Console.WriteLine("Valeurs non reconnu.");
                     }
-                    return 1;
+                    return 0;
                 }
             }
             else
             {
                 Console.WriteLine("Valeurs non reconnu.");
-                return 1;
+                return 0;
             }
 
 
@@ -101,7 +101,7 @@ namespace Shell.Class.Functions
             else
             {
                 Console.WriteLine("Chemin d'accès non reconnu.");
-                return 1;
+                return 0;
             }
 
             string pathDate = pathDest != "" ? pathDest : pathSource;
@@ -117,7 +117,7 @@ namespace Shell.Class.Functions
                 File.SetLastWriteTime(pathDate, tempDate);
             }
 
-            return 0;
+            return 1;
         }
 
         static string SetSource(string path)
@@ -153,7 +153,7 @@ namespace Shell.Class.Functions
                     pathSource = val;
                     pathDest = val2;
                     index += 3;
-                    return 0;
+                    return 1;
                 }
                 else
                 {
@@ -163,7 +163,7 @@ namespace Shell.Class.Functions
             }
             else
             {
-                return 1;
+                return 0;
             }
         }
         static int IsModifDate()
@@ -174,7 +174,7 @@ namespace Shell.Class.Functions
                 {
                     modifDateV = command.GetBaseValue(index + 1);
                     index += 2;
-                    return 0;
+                    return 1;
                 }
                 else
                 {
@@ -190,7 +190,7 @@ namespace Shell.Class.Functions
                     pathSource = SetSource(command.GetBaseValue(index));
                     modifDateV = command.GetBaseValue(index + 2);
                     index += 3;
-                    return 0;
+                    return 1;
                 }
                 else
                 {
@@ -200,7 +200,7 @@ namespace Shell.Class.Functions
             }
             else
             {
-                return 1;
+                return 0;
             }
         }
         static int IsCreateDate()
@@ -212,7 +212,7 @@ namespace Shell.Class.Functions
                     creatDateV = command.GetBaseValue(index + 1);
                     index += 2;
                     Console.WriteLine(creatDateV);
-                    return 0;
+                    return 1;
                 }
                 else
                 {
@@ -227,7 +227,7 @@ namespace Shell.Class.Functions
                     pathSource = SetSource(command.GetBaseValue(index));
                     creatDateV = command.GetBaseValue(index + 2);
                     index += 3;
-                    return 0;
+                    return 1;
                 }
                 else
                 {
@@ -237,7 +237,7 @@ namespace Shell.Class.Functions
             }
             else
             {
-                return 1;
+                return 0;
             }
         }
         static int IsShow()
@@ -251,7 +251,7 @@ namespace Shell.Class.Functions
                         Console.WriteLine(item);
                     }
                     index += 1;
-                    return 0;
+                    return 1;
                 }
                 else
                 {
@@ -261,7 +261,7 @@ namespace Shell.Class.Functions
             }
             else
             {
-                return 1;
+                return 0;
             }
         }
     }

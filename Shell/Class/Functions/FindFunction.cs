@@ -27,26 +27,26 @@ namespace Shell.Class.Functions
             showLine = false;
             findName = false;
 
-            if(IsShowLine() == 0)
+            if(IsShowLine() == 1)
             {
-                if (IsFind() == 1)
+                if (IsFind() == 0)
                 {
                     Console.WriteLine("Chemin d'accés non reconnu.");
-                    return 1;
+                    return 0;
                 }
             }
-            else if (IsShowName() == 0)
+            else if (IsShowName() == 1)
             {
-                if (IsFind() == 1)
+                if (IsFind() == 0)
                 {
                     Console.WriteLine("Chemin d'accés non reconnu.");
-                    return 1;
+                    return 0;
                 }
             }
-            else if (IsFind() == 1)
+            else if (IsFind() == 0)
             {
                 Console.WriteLine("Chemin d'accés non reconnu.");
-                return 1;
+                return 0;
             }
 
             if (File.Exists(pathSource))
@@ -133,10 +133,10 @@ namespace Shell.Class.Functions
             else
             {
                 Console.WriteLine("Chemin d'accès non reconnu.");
-                return 1;
+                return 0;
             }
 
-            return 0;
+            return 1;
         }
 
         static string SetSource(string path)
@@ -156,9 +156,9 @@ namespace Shell.Class.Functions
             {
                 showLine = true;
                 index += 1;
-                return 0;
+                return 1;
             }
-            return 1;
+            return 0;
         }
         static int IsShowName()
         {
@@ -166,9 +166,9 @@ namespace Shell.Class.Functions
             {
                 findName = true;
                 index += 1;
-                return 0;
+                return 1;
             }
-            return 1;
+            return 0;
         }
         static int IsFind()
         {
@@ -183,15 +183,15 @@ namespace Shell.Class.Functions
                 if (val != "")
                 {
                     pathSource = SetSource(val);
-                    return 0;
+                    return 1;
                 }
                 else
                 {
                     pathSource = actualPath;
-                    return 0;
+                    return 1;
                 }
             }
-            return 1;
+            return 0;
         }
     }
 }

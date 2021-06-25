@@ -115,13 +115,13 @@ namespace Shell.Class
             {
                 Console.WriteLine("'fcolor' a besoin d'une valeur pour fonctionner.");
                 Console.WriteLine("Exemple : 'fcolor red'.");
-                return 1;
+                return 0;
             }
             else if (Command.values.Count > 1)
             {
                 Console.WriteLine("'fcolor' a besoin d'une seule valeur pour fonctionner.");
                 Console.WriteLine("Exemple : 'fcolor red'.");
-                return 1;
+                return 0;
             }
 
             foreach (var item in colors)
@@ -136,9 +136,9 @@ namespace Shell.Class
             if (!find)
             {
                 Console.WriteLine("Couleur non trouvé.");
-                return 1;
+                return 0;
             }
-            return 0;
+            return 1;
         }
         private int ShowColors()
         {
@@ -146,7 +146,7 @@ namespace Shell.Class
             {
                 Console.WriteLine(item.Key);
             }
-            return 0;
+            return 1;
         }
         private int Echo()
         {
@@ -161,7 +161,7 @@ namespace Shell.Class
                 x++;
             }
             Console.WriteLine(ret);
-            return 0;
+            return 1;
         }
         private int LsFolders()
         {
@@ -188,7 +188,7 @@ namespace Shell.Class
                 {
                     Console.WriteLine("Argument non reconnu :");
                     Console.WriteLine("\"" + item + "\"");
-                    return 1;
+                    return 0;
                 }
             }
 
@@ -201,12 +201,12 @@ namespace Shell.Class
             if (!Directory.Exists(path) && !File.Exists(path))
             {
                 Console.WriteLine("Chemin d'accès non reconnu.");
-                return 1;
+                return 0;
             }
             if (!CanRead(path))
             {
                 Console.WriteLine("Vous n'avez pas l'autorisation de lire ce dossier.");
-                return 1;
+                return 0;
             }
 
             if (list)
@@ -333,7 +333,7 @@ namespace Shell.Class
                     Console.WriteLine("");
                 }
             }
-            return 0;
+            return 1;
         }
         private int CurrentDir()
         {
@@ -362,21 +362,21 @@ namespace Shell.Class
             {
                 Console.WriteLine(path);
                 Console.WriteLine("Chemin d'accès non reconnu.");
-                return 1;
+                return 0;
             }
 
-            return 0;
+            return 1;
         }
 
         private int Exit()
         {
             Environment.Exit(0);
-            return 0;
+            return 1;
         }
         private int Clear()
         {
             Console.Clear();
-            return 0;
+            return 1;
         }
         private int Help()
         {
@@ -394,7 +394,7 @@ namespace Shell.Class
                     Console.WriteLine(TextTool.StringToWidth("  " + item.Key, 10) + "e");
                 }
             }
-            return 0;
+            return 1;
         }
         private int SQL()
         {
@@ -458,7 +458,7 @@ namespace Shell.Class
                 Console.WriteLine("'sql' a besoin d'un argument pour fonctionner.");
             }
 
-            return 0;
+            return 1;
         }
         
 
