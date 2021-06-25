@@ -42,7 +42,7 @@ namespace Shell.Class.Tools
 
             return false;
         }
-        public static string[] GetLinesInFile(string file, string toFind)
+        public static string[] GetLinesInFile(string file, string toFind, bool lower = true)
         {
             List<string> lines = new List<string>();
             try
@@ -50,9 +50,19 @@ namespace Shell.Class.Tools
                 int count = 0;
                 foreach (var item in File.ReadAllLines(file))
                 {
-                    if (item.IndexOf(toFind) >= 0)
+                    if (lower)
                     {
-                        lines.Add(TextTool.AddBlankRight(count.ToString(), 4) + item);
+                        if (item.ToLower().IndexOf(toFind.ToLower()) >= 0)
+                        {
+                            lines.Add(TextTool.AddBlankRight(count.ToString(), 4) + item);
+                        }
+                    }
+                    else
+                    {
+                        if (item.IndexOf(toFind) >= 0)
+                        {
+                            lines.Add(TextTool.AddBlankRight(count.ToString(), 4) + item);
+                        }
                     }
                     count++;
                 }

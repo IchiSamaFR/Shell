@@ -15,6 +15,7 @@ namespace Shell.Class.Functions
         static string pathSource;
         static string toFind;
         static bool showLine;
+        static bool findName;
         static int index;
 
         public static int Find()
@@ -24,10 +25,27 @@ namespace Shell.Class.Functions
             toFind = "";
             index = 1;
             showLine = false;
+            findName = false;
 
-            IsShowLine();
-            if (IsFind() == 1)
+            if(IsShowLine() == 0)
             {
+                if (IsFind() == 1)
+                {
+                    Console.WriteLine("Chemin d'accés non reconnu.");
+                    return 1;
+                }
+            }
+            else if (IsShowName() == 0)
+            {
+                if (IsFind() == 1)
+                {
+                    Console.WriteLine("Chemin d'accés non reconnu.");
+                    return 1;
+                }
+            }
+            else if (IsFind() == 1)
+            {
+                Console.WriteLine("Chemin d'accés non reconnu.");
                 return 1;
             }
 
@@ -47,6 +65,17 @@ namespace Shell.Class.Functions
                     else
                     {
                         Console.WriteLine("Ligne non trouvée.");
+                    }
+                }
+                else if (findName)
+                {
+                    if (Path.GetFileName(pathSource).ToLower().IndexOf(toFind.ToLower()) >= 0)
+                    {
+                        Console.WriteLine("Index trouvée.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Index non trouvée.");
                     }
                 }
                 else
@@ -85,6 +114,13 @@ namespace Shell.Class.Functions
                             bef = true;
                         }
                     }
+                    else if (findName)
+                    {
+                        if (Path.GetFileName(item).ToLower().IndexOf(toFind.ToLower()) >= 0)
+                        {
+                            Console.WriteLine(item.Substring(pathSource.Length, item.Length - pathSource.Length));
+                        }
+                    }
                     else
                     {
                         if (DirectoryTool.FindInFile(item, toFind))
@@ -103,11 +139,32 @@ namespace Shell.Class.Functions
             return 0;
         }
 
+        static string SetSource(string path)
+        {
+            if (Path.IsPathRooted(path))
+            {
+                return path;
+            }
+            else
+            {
+                return Main.shellConfig.actualDir + "\\" + path;
+            }
+        }
         static int IsShowLine()
         {
             if (command.GetBaseValue(index) == "-sl" || command.GetBaseValue(index) == "-showlines")
             {
                 showLine = true;
+                index += 1;
+                return 0;
+            }
+            return 1;
+        }
+        static int IsShowName()
+        {
+            if (command.GetBaseValue(index) == "-n" || command.GetBaseValue(index) == "-name")
+            {
+                findName = true;
                 index += 1;
                 return 0;
             }
@@ -125,14 +182,7 @@ namespace Shell.Class.Functions
                 val = command.GetBaseValue(index + 1);
                 if (val != "")
                 {
-                    if (Path.IsPathRooted(val))
-                    {
-                        pathSource = val;
-                    }
-                    else
-                    {
-                        pathSource = actualPath + "\\" + val;
-                    }
+                    pathSource = SetSource(val);
                     return 0;
                 }
                 else
