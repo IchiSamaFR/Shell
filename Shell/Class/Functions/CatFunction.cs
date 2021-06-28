@@ -33,7 +33,7 @@ namespace Shell.Class.Functions
             if (command.values.Count > 0)
             {
                 int res = 0;
-                if ((res = IsCopy()) == 0)
+                if ((res = IsCopy()) == 1)
                 {
                     if ((res = IsModifDate()) == 0)
                     {
@@ -54,17 +54,21 @@ namespace Shell.Class.Functions
                         return 0;
                     }
                 }
-                else if (res != 2 && (res = IsModifDate()) == 0)
+                else if (res != 2 && (res = IsModifDate()) == 1)
                 {
                     res = IsCreateDate();
                     if (res == 2) return 0;
                 }
-                else if (res != 2 && (res = IsCreateDate()) == 0)
+                else if (res != 2 && (res = IsCreateDate()) == 1)
                 {
                     res = IsModifDate();
                     if (res == 2) return 0;
                 }
-                else if (res != 2 && (res = IsShow()) == 0)
+                else if (res != 2 && (res = IsWritting()) == 1)
+                {
+                    return 1;
+                }
+                else if (res != 2 && (res = IsShow()) == 1)
                 {
                     return 1;
                 }
@@ -170,9 +174,10 @@ namespace Shell.Class.Functions
         {
             if (index != 1 && (command.GetBaseValue(index) == "-md" || command.GetBaseValue(index) == "-modifdate"))
             {
-                if (TextTool.IsDateTime(command.GetBaseValue(index + 1)))
+                string val = command.GetBaseValue(index + 1).Replace("\"", "");
+                if (TextTool.IsDateTime(val))
                 {
-                    modifDateV = command.GetBaseValue(index + 1);
+                    modifDateV = val;
                     index += 2;
                     return 1;
                 }
@@ -184,11 +189,11 @@ namespace Shell.Class.Functions
             }
             else if (command.GetBaseValue(index) != "" && (command.GetBaseValue(index + 1) == "-md" || command.GetBaseValue(index + 1) == "-modifdate"))
             {
-                Console.WriteLine(command.GetBaseValue(index + 2));
-                if (TextTool.IsDateTime(command.GetBaseValue(index + 2)))
+                string val = command.GetBaseValue(index + 2).Replace("\"", "");
+                if (TextTool.IsDateTime(val))
                 {
-                    pathSource = SetSource(command.GetBaseValue(index));
-                    modifDateV = command.GetBaseValue(index + 2);
+                    pathSource = SetSource(command.GetBaseValue(index).Replace("\"", ""));
+                    modifDateV = val;
                     index += 3;
                     return 1;
                 }
@@ -207,11 +212,11 @@ namespace Shell.Class.Functions
         {
             if (index != 1 && (command.GetBaseValue(index) == "-cd" || command.GetBaseValue(index) == "-createdate"))
             {
-                if (TextTool.IsDateTime(command.GetBaseValue(index + 1)))
+                string val = command.GetBaseValue(index + 1).Replace("\"", "");
+                if (TextTool.IsDateTime(val))
                 {
-                    creatDateV = command.GetBaseValue(index + 1);
+                    creatDateV = val;
                     index += 2;
-                    Console.WriteLine(creatDateV);
                     return 1;
                 }
                 else
@@ -222,10 +227,11 @@ namespace Shell.Class.Functions
             }
             else if (command.GetBaseValue(index) != "" && (command.GetBaseValue(index + 1) == "-cd" || command.GetBaseValue(index + 1) == "-createdate"))
             {
-                if (TextTool.IsDateTime(command.GetBaseValue(index + 2)))
+                string val = command.GetBaseValue(index + 2).Replace("\"", "");
+                if (TextTool.IsDateTime(val))
                 {
-                    pathSource = SetSource(command.GetBaseValue(index));
-                    creatDateV = command.GetBaseValue(index + 2);
+                    pathSource = SetSource(command.GetBaseValue(index).Replace("\"", ""));
+                    creatDateV = val;
                     index += 3;
                     return 1;
                 }
@@ -244,9 +250,10 @@ namespace Shell.Class.Functions
         {
             if (command.GetBaseValue(index) != "")
             {
-                if (command.GetBaseValue(index + 1) == "" && File.Exists(command.GetBaseValue(index)))
+                string val = command.GetBaseValue(index).Replace("\"", "");
+                if (command.GetBaseValue(index + 1) == "" && File.Exists(val))
                 {
-                    foreach (var item in File.ReadAllLines(command.GetBaseValue(index)))
+                    foreach (var item in File.ReadAllLines(val))
                     {
                         Console.WriteLine(item);
                     }
@@ -263,6 +270,22 @@ namespace Shell.Class.Functions
             {
                 return 0;
             }
+        }
+        static int IsWritting()
+        {
+            string name = command.GetBaseValue(index + 1);
+            if (command.GetBaseValue(index) != ">" || name == "" || command.GetBaseValue(index + 2) != "")
+            {
+                return 0;
+            }
+            
+            string line = "";
+            while (TextTool.CancelableReadLine(out line))
+            {
+                File.AppendAllText(name, Environment.NewLine + line);
+            }
+
+            return 1;
         }
     }
 }

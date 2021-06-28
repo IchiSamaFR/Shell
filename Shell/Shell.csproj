@@ -54,6 +54,7 @@
     <Compile Include="Class\Functions\FindFunction.cs" />
     <Compile Include="Class\Functions\LsFunction.cs" />
     <Compile Include="Class\Functions\SQLFunction.cs" />
+    <Compile Include="Class\Functions\SystemFunction.cs" />
     <Compile Include="Class\JsonManager.cs" />
     <Compile Include="Class\Config\ShellConfig.cs" />
     <Compile Include="Class\Config\SQLConfig.cs" />
@@ -67,6 +68,5 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

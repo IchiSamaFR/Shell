@@ -30,10 +30,6 @@ namespace Shell.Class
 
         public void Init()
         {
-            Console.CancelKeyPress += delegate {
-                Clear();
-                WaitCommand();
-            };
             shellConfig = new ShellConfig(Environment.CurrentDirectory, ConsoleColor.Green, ConsoleColor.White);
             sqlConfig = new SQLConfig();
 
