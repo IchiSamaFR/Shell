@@ -152,7 +152,7 @@ namespace Shell.Class.Functions
         }
         static int IsShowLine()
         {
-            if (command.GetBaseValue(index) == "-sl" || command.GetBaseValue(index) == "-showlines")
+            if (command.GetBaseValue(index) == "-sl" || command.GetBaseValue(index) == "--showlines")
             {
                 showLine = true;
                 index += 1;
@@ -162,7 +162,7 @@ namespace Shell.Class.Functions
         }
         static int IsShowName()
         {
-            if (command.GetBaseValue(index) == "-n" || command.GetBaseValue(index) == "-name")
+            if (command.GetBaseValue(index) == "-n" || command.GetBaseValue(index) == "--name")
             {
                 findName = true;
                 index += 1;

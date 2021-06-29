@@ -30,7 +30,11 @@ namespace Shell.Class.Functions
             }
 
             path = path.Replace("\"", "").Replace("/", "\\");
-            if (Path.IsPathRooted(path) && Directory.Exists(path))
+            if(path == "")
+            {
+                Console.WriteLine(pathToGo);
+            }
+            else if (Path.IsPathRooted(path) && Directory.Exists(path))
             {
                 shellConfig.actualDir = Path.GetFullPath(path);
             }

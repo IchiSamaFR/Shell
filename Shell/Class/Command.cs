@@ -31,8 +31,8 @@ namespace Shell.Class
             {
                 if (i % 2 == 1)
                 {
-                    tempValues.Add("" + newCommand[i].Substring(0) + "");
-                    baseValues.Add("\"" + newCommand[i].Substring(0) + "\"");
+                    tempValues.Add("" + newCommand[i] + "");
+                    baseValues.Add("\"" + newCommand[i] + "\"");
                 }
                 else
                 {

@@ -84,12 +84,12 @@ namespace Shell.Class.Config
                 SQLConn.Open();
                 SQLConn.Close();
                 Console.WriteLine("Aucun problème n'est survenue lors du test SQL.");
-                return 0;
+                return 1;
             }
             catch (SqlException)
             {
                 Console.WriteLine("Impossible de se connecter au serveur SQL.");
-                return 1;
+                return 0;
             }
         }
 

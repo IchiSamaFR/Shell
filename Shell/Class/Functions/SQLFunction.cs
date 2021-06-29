@@ -20,7 +20,7 @@ namespace Shell.Class.Functions
             bool end = false;
             foreach (var item in command.arguments)
             {
-                if (item == "-add")
+                if (item == "-a" || item == "--add")
                 {
                     Console.WriteLine("Creation of the data connection.");
                     Console.Write("Host : ");
@@ -36,22 +36,22 @@ namespace Shell.Class.Functions
                     sqlConfig.Init(hs, db, user, pswd);
                     end = true;
                 }
-                else if (item == "-load")
+                else if (item == "-l" || item == "--load")
                 {
                     sqlConfig.Load();
                     end = true;
                 }
-                else if (item == "-test")
+                else if (item == "-t" || item == "--test")
                 {
                     sqlConfig.TestConnection();
                     end = true;
                 }
-                else if (item == "-info")
+                else if (item == "-i" || item == "--info")
                 {
                     sqlConfig.Infos();
                     end = true;
                 }
-                else if (item == "-select")
+                else if (item == "-s" || item == "--select")
                 {
                     string request = "";
 

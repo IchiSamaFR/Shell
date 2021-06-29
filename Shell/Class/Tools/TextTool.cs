@@ -138,10 +138,13 @@ namespace Shell.Class.Tools
         {
             value = string.Empty;
             var buffer = new StringBuilder();
+            buffer.Insert(0, "> ");
+            Console.Write(buffer.ToString());
+
             var key = Console.ReadKey(true);
             while (key.Key != ConsoleKey.Enter && key.Key != ConsoleKey.Escape)
             {
-                if (key.Key == ConsoleKey.Backspace && Console.CursorLeft > 0)
+                if (key.Key == ConsoleKey.Backspace && Console.CursorLeft > 2)
                 {
                     var cli = --Console.CursorLeft;
                     buffer.Remove(cli, 1);
@@ -161,7 +164,7 @@ namespace Shell.Class.Tools
                     Console.CursorLeft = cli + 1;
                     key = Console.ReadKey(true);
                 }
-                else if (key.Key == ConsoleKey.LeftArrow && Console.CursorLeft > 0)
+                else if (key.Key == ConsoleKey.LeftArrow && Console.CursorLeft > 2)
                 {
                     Console.CursorLeft--;
                     key = Console.ReadKey(true);
@@ -180,7 +183,7 @@ namespace Shell.Class.Tools
             if (key.Key == ConsoleKey.Enter)
             {
                 Console.WriteLine();
-                value = buffer.ToString();
+                value = buffer.ToString().Substring(2);
                 return true;
             }
             return false;

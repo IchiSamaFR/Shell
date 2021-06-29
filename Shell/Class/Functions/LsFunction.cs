@@ -38,8 +38,25 @@ namespace Shell.Class.Functions
                 {
                     return 0;
                 }
+                else if (command.GetBaseValue(index) != "")
+                {
+                    Console.WriteLine("Chemin d'accès non reconnu.");
+                    return 0;
+                }
             }
-            else if ((res = IsLs()) == 2)
+            else if ((res = IsLs()) == 1)
+            {
+                if((res = IsListing()) == 2)
+                {
+                    return 0;
+                }
+                else if (command.GetBaseValue(index) != "")
+                {
+                    Console.WriteLine("Chemin d'accès non reconnu.");
+                    return 0;
+                }
+            }
+            else if (res == 2)
             {
                 return 0;
             }
@@ -165,7 +182,7 @@ namespace Shell.Class.Functions
         static int IsListing()
         {
             string val = command.GetBaseValue(index);
-            if (val == "-l" || val == "-list")
+            if (val == "-l" || val == "--list")
             {
                 list = true;
                 index += 1;
@@ -213,7 +230,7 @@ namespace Shell.Class.Functions
             FileInfo _file = new FileInfo(path);
             IFormatProvider frenchFormatProvider =
                 new System.Globalization.CultureInfo("fr-FR");
-            Console.WriteLine(_file.CreationTime.ToString("dd/mm/yyyy") +
+            Console.WriteLine(_file.CreationTime.ToString("dd/MM/yyyy") +
                              "  " + TextTool.AddBlankLeft(_file.Length.ToString("#,##0", frenchFormatProvider), 20) +
                              "  " + _file.Name + "");
         }

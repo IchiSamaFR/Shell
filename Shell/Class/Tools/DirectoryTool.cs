@@ -74,5 +74,18 @@ namespace Shell.Class.Tools
 
             return lines.ToArray();
         }
+
+
+        public static string SetPath(string path)
+        {
+            if (Path.IsPathRooted(path))
+            {
+                return path;
+            }
+            else
+            {
+                return Main.shellConfig.actualDir + "\\" + path;
+            }
+        }
     }
 }

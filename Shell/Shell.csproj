@@ -53,6 +53,8 @@
     <Compile Include="Class\Functions\DirFunction.cs" />
     <Compile Include="Class\Functions\FindFunction.cs" />
     <Compile Include="Class\Functions\LsFunction.cs" />
+    <Compile Include="Class\Functions\MvFunction.cs" />
+    <Compile Include="Class\Functions\RmFunction.cs" />
     <Compile Include="Class\Functions\SQLFunction.cs" />
     <Compile Include="Class\Functions\SystemFunction.cs" />
     <Compile Include="Class\JsonManager.cs" />

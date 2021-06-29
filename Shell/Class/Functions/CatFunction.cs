@@ -124,28 +124,6 @@ namespace Shell.Class.Functions
             return 1;
         }
 
-        static string SetSource(string path)
-        {
-            if (Path.IsPathRooted(path))
-            {
-                return path;
-            }
-            else
-            {
-                return Main.shellConfig.actualDir + "\\" + path;
-            }
-        }
-        static string SetModifDate(string path)
-        {
-            if (Path.IsPathRooted(path))
-            {
-                return path;
-            }
-            else
-            {
-                return Main.shellConfig.actualDir + "\\" + path;
-            }
-        }
         static int IsCopy()
         {
             string val = command.GetBaseValue(index).Replace("\"", "");
@@ -172,7 +150,7 @@ namespace Shell.Class.Functions
         }
         static int IsModifDate()
         {
-            if (index != 1 && (command.GetBaseValue(index) == "-md" || command.GetBaseValue(index) == "-modifdate"))
+            if (index != 1 && (command.GetBaseValue(index) == "-m" || command.GetBaseValue(index) == "--modifdate"))
             {
                 string val = command.GetBaseValue(index + 1).Replace("\"", "");
                 if (TextTool.IsDateTime(val))
@@ -187,12 +165,12 @@ namespace Shell.Class.Functions
                     return 2;
                 }
             }
-            else if (command.GetBaseValue(index) != "" && (command.GetBaseValue(index + 1) == "-md" || command.GetBaseValue(index + 1) == "-modifdate"))
+            else if (command.GetBaseValue(index) != "" && (command.GetBaseValue(index + 1) == "-m" || command.GetBaseValue(index + 1) == "--modifdate"))
             {
                 string val = command.GetBaseValue(index + 2).Replace("\"", "");
                 if (TextTool.IsDateTime(val))
                 {
-                    pathSource = SetSource(command.GetBaseValue(index).Replace("\"", ""));
+                    pathSource = DirectoryTool.SetPath(command.GetBaseValue(index).Replace("\"", ""));
                     modifDateV = val;
                     index += 3;
                     return 1;
@@ -210,7 +188,7 @@ namespace Shell.Class.Functions
         }
         static int IsCreateDate()
         {
-            if (index != 1 && (command.GetBaseValue(index) == "-cd" || command.GetBaseValue(index) == "-createdate"))
+            if (index != 1 && (command.GetBaseValue(index) == "-c" || command.GetBaseValue(index) == "--createdate"))
             {
                 string val = command.GetBaseValue(index + 1).Replace("\"", "");
                 if (TextTool.IsDateTime(val))
@@ -225,12 +203,12 @@ namespace Shell.Class.Functions
                     return 2;
                 }
             }
-            else if (command.GetBaseValue(index) != "" && (command.GetBaseValue(index + 1) == "-cd" || command.GetBaseValue(index + 1) == "-createdate"))
+            else if (command.GetBaseValue(index) != "" && (command.GetBaseValue(index + 1) == "-c" || command.GetBaseValue(index + 1) == "--createdate"))
             {
                 string val = command.GetBaseValue(index + 2).Replace("\"", "");
                 if (TextTool.IsDateTime(val))
                 {
-                    pathSource = SetSource(command.GetBaseValue(index).Replace("\"", ""));
+                    pathSource = DirectoryTool.SetPath(command.GetBaseValue(index).Replace("\"", ""));
                     creatDateV = val;
                     index += 3;
                     return 1;
