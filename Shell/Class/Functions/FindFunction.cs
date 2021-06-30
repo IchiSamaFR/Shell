@@ -179,7 +179,7 @@ namespace Shell.Class.Functions
             {
                 toFind = val.Replace("\"","");
 
-                val = command.GetBaseValue(index + 1);
+                val = command.GetBaseValue(index + 1).Replace("\"", "");
                 if (val != "")
                 {
                     pathSource = SetSource(val);

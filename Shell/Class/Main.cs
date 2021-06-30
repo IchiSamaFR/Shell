@@ -55,7 +55,10 @@ namespace Shell.Class
             functions.Add("cat", new Function("cat", "directory", new Func<int>(CatFunction.Cat)));
             functions.Add("rm", new Function("rm", "directory", new Func<int>(RmFunction.Rm)));
             functions.Add("mv", new Function("mv", "directory", new Func<int>(MvFunction.Mv)));
+            functions.Add("touch", new Function("touch", "directory", new Func<int>(TouchFunction.Touch)));
+            functions.Add("mkdir", new Function("mkdir", "directory", new Func<int>(MkdirFunction.Mkdir)));
 
+            functions.Add("exec", new Function("exec", "tool", new Func<int>(ExecFunction.Exec)));
             functions.Add("echo", new Function("echo", "tool", new Func<int>(SystemFunction.Echo)));
             functions.Add("exit", new Function("exit", "tool", new Func<int>(SystemFunction.Exit)));
             functions.Add("clear", new Function("clear", "tool", new Func<int>(SystemFunction.Clear)));

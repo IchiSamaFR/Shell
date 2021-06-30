@@ -12,14 +12,20 @@ namespace Shell.Class.Tools
         public static List<string> GetFiles(string folder)
         {
             List<string> files = new List<string>();
-
-            foreach (var item in Directory.GetFiles(folder))
+            try
             {
-                files.Add(item);
+                foreach (var item in Directory.GetFiles(folder))
+                {
+                    files.Add(item);
+                }
+                foreach (var item in Directory.GetDirectories(folder))
+                {
+                    files.AddRange(GetFiles(item));
+                }
             }
-            foreach (var item in Directory.GetDirectories(folder))
+            catch
             {
-                files.AddRange(GetFiles(item));
+
             }
             return files;
         }
@@ -74,8 +80,7 @@ namespace Shell.Class.Tools
 
             return lines.ToArray();
         }
-
-
+        
         public static string SetPath(string path)
         {
             if (Path.IsPathRooted(path))

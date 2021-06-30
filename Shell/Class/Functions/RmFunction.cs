@@ -41,7 +41,7 @@ namespace Shell.Class.Functions
             }
             else if (Directory.Exists(pathSource))
             {
-                Directory.Delete(pathSource);
+                Directory.Delete(pathSource, true);
             }
             else
             {
