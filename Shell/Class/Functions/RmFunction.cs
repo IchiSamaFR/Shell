@@ -24,10 +24,9 @@ namespace Shell.Class.Functions
             pathSource = "";
             index = 1;
 
-            string val = command.GetBaseValue(index);
-            if(val != "")
+            if(command.IsCommandLike(index, "$value $end"))
             {
-                pathSource = DirectoryTool.SetPath(val);
+                pathSource = DirectoryTool.SetPath(command.GetBaseValue(index).Replace("\"", ""));
             }
             else
             {

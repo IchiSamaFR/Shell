@@ -1,4 +1,5 @@
 ﻿using Shell.Class.Config;
+using Shell.Class.Tools;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,20 +14,25 @@ namespace Shell.Class.Functions
         public static Command command;
         public static ShellConfig shellConfig;
 
+        static string path;
+        static int index;
+
         public static int CurrentDir()
         {
             command = Main.Command;
             shellConfig = Main.shellConfig;
+            index = 1;
 
             string pathToGo = shellConfig.actualDir;
-            string path = "";
+            path = "";
 
-            int x = 0;
-            foreach (var item in command.baseValues)
+            if (command.IsCommandLike(index, "$value $end"))
             {
-                if (x > 0)
-                    path += item + " ";
-                x++;
+                path = DirectoryTool.SetPath(command.GetBaseValue(index).Replace("\"", ""));
+            }
+            else if (!command.IsCommandLike(index, "$end"))
+            {
+                return 0;
             }
 
             path = path.Replace("\"", "").Replace("/", "\\");

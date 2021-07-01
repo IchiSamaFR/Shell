@@ -23,9 +23,12 @@ namespace Shell.Class.Functions
             shellConfig = Main.shellConfig;
             pathSource = "";
             index = 1;
-
-            int res;
-            if((res = IsPath()) == 2 || res == 0)
+            
+            if(command.IsCommandLike(index, "$value $end"))
+            {
+                pathSource = DirectoryTool.SetPath(command.GetBaseValue(index).Replace("\"", ""));
+            }
+            else
             {
                 return 0;
             }
@@ -39,21 +42,6 @@ namespace Shell.Class.Functions
                 Console.WriteLine("Fichier déjà existant.");
                 return 0;
             }
-            return 1;
-        }
-
-        public static int IsPath()
-        {
-            string val = command.GetBaseValue(index).Replace("\"", "");
-            string val2 = command.GetBaseValue(index + 1);
-            if (val == "" && val2 != "")
-            {
-                Console.WriteLine("Fichier non reconnu.");
-                return 2;
-            }
-
-            pathSource = DirectoryTool.SetPath(val);
-
             return 1;
         }
 

@@ -25,9 +25,17 @@ namespace Shell.Class.Functions
             shellConfig = Main.shellConfig;
             pathSource = "";
             index = 1;
-
-            int res = 0;
-            if ((res = IsPath()) == 2 || res == 0)
+            
+            if (command.IsCommandLike(index, "$value $value $end"))
+            {
+                pathSource = DirectoryTool.SetPath(command.GetBaseValue(index).Replace("\"", ""));
+                arguments = DirectoryTool.SetPath(command.GetBaseValue(index + 1).Replace("\"", ""));
+            }
+            else if (command.IsCommandLike(index, "$value $end"))
+            {
+                pathSource = DirectoryTool.SetPath(command.GetBaseValue(index).Replace("\"", ""));
+            }
+            else
             {
                 return 0;
             }
@@ -36,8 +44,6 @@ namespace Shell.Class.Functions
             if (File.Exists(pathSource))
             {
                 proc = Process.Start(pathSource);
-                proc.WaitForInputIdle();
-                proc.WaitForExit(100);
             }
             else if (Directory.Exists(pathSource))
             {
@@ -48,22 +54,6 @@ namespace Shell.Class.Functions
                 Console.WriteLine("Fichier ou dossier introuvable.");
                 return 0;
             }
-            return 1;
-        }
-
-        public static int IsPath()
-        {
-            string val = command.GetBaseValue(index).Replace("\"", "");
-            string val2 = command.GetBaseValue(index + 1).Replace("\"", "");
-            if (val == "")
-            {
-                Console.WriteLine("Fichier ou dossier non reconnu.");
-                return 2;
-            }
-
-            pathSource = DirectoryTool.SetPath(val);
-            arguments = DirectoryTool.SetPath(val);
-
             return 1;
         }
     }

@@ -26,43 +26,44 @@ namespace Shell.Class.Functions
             list = false;
             index = 1;
 
-            int res = 0;
-            if((res = IsListing()) == 1)
+
+            if (command.IsCommandLike(index, "-l"))
             {
-                if ((res = IsLs()) == 0)
+                list = true;
+                index += 1;
+                if (command.IsCommandLike(index, "$value $end"))
                 {
-                    Console.WriteLine("Chemin d'accès non reconnu.");
-                    return 0;
+                    pathSource = DirectoryTool.SetPath(command.GetBaseValue(index).Replace(" ", ""));
+                    if (File.Exists(pathSource))
+                    {
+                        LsFile(pathSource);
+                        return 0;
+                    }
+                    else if (!Directory.Exists(pathSource))
+                    {
+                        return 0;
+                    }
                 }
-                else if (res == 2)
+                else if (!command.IsCommandLike(index, "$end"))
                 {
-                    return 0;
-                }
-                else if (command.GetBaseValue(index) != "")
-                {
-                    Console.WriteLine("Chemin d'accès non reconnu.");
                     return 0;
                 }
             }
-            else if ((res = IsLs()) == 1)
+            else if (command.IsCommandLike(index, "$value"))
             {
-                if((res = IsListing()) == 2)
+                pathSource = DirectoryTool.SetPath(command.GetBaseValue(index).Replace(" ", ""));
+                index += 1;
+                if (command.IsCommandLike(index, "-l $end"))
+                {
+                    list = true;
+                }
+                else if (!command.IsCommandLike(index, "$end"))
                 {
                     return 0;
                 }
-                else if (command.GetBaseValue(index) != "")
-                {
-                    Console.WriteLine("Chemin d'accès non reconnu.");
-                    return 0;
-                }
             }
-            else if (res == 2)
+            else if (!command.IsCommandLike(index, "$end"))
             {
-                return 0;
-            }
-            else if (res == 0)
-            {
-                Console.WriteLine("Chemin d'accès non reconnu.");
                 return 0;
             }
 
@@ -178,53 +179,7 @@ namespace Shell.Class.Functions
             }
             return Tuple.Create(colValues, charCol, _countDir);
         }
-
-        static int IsListing()
-        {
-            string val = command.GetBaseValue(index);
-            if (val == "-l" || val == "--list")
-            {
-                list = true;
-                index += 1;
-                return 1;
-            }
-            return 0;
-        }
-        static int IsLs()
-        {
-            string val = command.GetBaseValue(index).Replace(" ", "");
-            index++;
-            if (Path.IsPathRooted(val))
-            {
-                pathSource = val;
-            }
-            else
-            {
-                pathSource += "/" + val;
-            }
-
-            if (Directory.Exists(pathSource))
-            {
-                return 1;
-            }
-            else if (File.Exists(pathSource))
-            {
-                if (list)
-                {
-                    LsFile(pathSource);
-                }
-                else
-                {
-                    Console.WriteLine("Fichier existant.");
-                }
-                return 2;
-            }
-            else
-            {
-                return 0;
-            }
-        }
-
+        
         static void LsFile(string path)
         {
             FileInfo _file = new FileInfo(path);

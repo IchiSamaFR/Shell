@@ -25,10 +25,14 @@ namespace Shell.Class.Functions
             pathSource = "";
             pathDest = "";
             index = 1;
-
-            int res = 0;
-            if((res = IsMoving()) == 2 || res == 0)
+            
+            if (command.IsCommandLike(index, "$value $end"))
             {
+                pathSource = DirectoryTool.SetPath(command.GetBaseValue(index).Replace("\"", ""));
+            }
+            else
+            {
+                Console.WriteLine("Fichier ou dossier non reconnu.");
                 return 0;
             }
 

@@ -80,5 +80,42 @@ namespace Shell.Class
             }
             return "";
         }
+
+        public bool IsCommandLike(int index, string val)
+        {
+            string[] values = val.Split(' ');
+
+            foreach (var item in values)
+            {
+                if(item[0] != '$')
+                {
+                    if (GetBaseValue(index) != item)
+                    {
+                        return false;
+                    }
+                }
+                else if (item == "$value")
+                {
+                    if(GetBaseValue(index) == "")
+                    {
+                        return false;
+                    }
+                }
+                else if (item == "$end")
+                {
+                    if (GetBaseValue(index) != "")
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+                index++;
+            }
+
+            return true;
+        }
     }
 }

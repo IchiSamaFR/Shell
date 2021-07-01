@@ -12,28 +12,28 @@ namespace Shell.Class.Functions
         public static Command command;
         public static ShellConfig shellConfig;
 
+        static int index;
+        static string value;
+
         public static int ChangeForeColor()
         {
             command = Main.Command;
             shellConfig = Main.shellConfig;
-
+            index = 1;
             bool find = false;
-            if (command.values.Count == 0)
+
+            if(command.IsCommandLike(index, "$value $end"))
             {
-                Console.WriteLine("'fcolor' a besoin d'une valeur pour fonctionner.");
-                Console.WriteLine("Exemple : 'fcolor red'.");
-                return 0;
+                value = command.GetBaseValue(index);
             }
-            else if (command.values.Count > 1)
+            else
             {
-                Console.WriteLine("'fcolor' a besoin d'une seule valeur pour fonctionner.");
-                Console.WriteLine("Exemple : 'fcolor red'.");
                 return 0;
             }
 
             foreach (var item in Main.colors)
             {
-                if (item.Key == command.values[0])
+                if (item.Key == value)
                 {
                     shellConfig.textColor = item.Value;
                     find = true;

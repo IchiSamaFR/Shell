@@ -27,25 +27,8 @@ namespace Shell.Class.Functions
             showLine = false;
             findName = false;
 
-            if(IsShowLine() == 1)
+            if(GetCommand() == 0)
             {
-                if (IsFind() == 0)
-                {
-                    Console.WriteLine("Chemin d'accés non reconnu.");
-                    return 0;
-                }
-            }
-            else if (IsShowName() == 1)
-            {
-                if (IsFind() == 0)
-                {
-                    Console.WriteLine("Chemin d'accés non reconnu.");
-                    return 0;
-                }
-            }
-            else if (IsFind() == 0)
-            {
-                Console.WriteLine("Chemin d'accés non reconnu.");
                 return 0;
             }
 
@@ -150,48 +133,63 @@ namespace Shell.Class.Functions
                 return Main.shellConfig.actualDir + "\\" + path;
             }
         }
-        static int IsShowLine()
+
+        static int GetCommand()
         {
-            if (command.GetBaseValue(index) == "-sl" || command.GetBaseValue(index) == "--showlines")
+            if (command.IsCommandLike(index, "-sl") || command.IsCommandLike(index, "--showlines"))
             {
                 showLine = true;
                 index += 1;
-                return 1;
-            }
-            return 0;
-        }
-        static int IsShowName()
-        {
-            if (command.GetBaseValue(index) == "-n" || command.GetBaseValue(index) == "--name")
-            {
-                findName = true;
-                index += 1;
-                return 1;
-            }
-            return 0;
-        }
-        static int IsFind()
-        {
-            string actualPath = Main.shellConfig.actualDir;
-
-            string val = command.GetBaseValue(index);
-            if(val != "")
-            {
-                toFind = val.Replace("\"","");
-
-                val = command.GetBaseValue(index + 1).Replace("\"", "");
-                if (val != "")
+                if (command.IsCommandLike(index, "$value $value $end"))
                 {
-                    pathSource = SetSource(val);
-                    return 1;
+                    toFind = command.GetBaseValue(index).Replace("\"", "");
+                    pathSource = DirectoryTool.SetPath(command.GetBaseValue(index + 1).Replace("\"", ""));
+                }
+                else if (command.IsCommandLike(index, "$value $end"))
+                {
+                    toFind = command.GetBaseValue(index).Replace("\"", "");
+                    pathSource = Main.shellConfig.actualDir;
                 }
                 else
                 {
-                    pathSource = actualPath;
-                    return 1;
+                    return 0;
                 }
             }
-            return 0;
-        }
+            else if (command.IsCommandLike(index, "-n") || command.IsCommandLike(index, "--name"))
+            {
+                findName = true;
+                index += 1;
+                if (command.IsCommandLike(index, "$value $value $end"))
+                {
+                    toFind = command.GetBaseValue(index).Replace("\"", "");
+                    pathSource = DirectoryTool.SetPath(command.GetBaseValue(index + 1).Replace("\"", ""));
+                }
+                else if (command.IsCommandLike(index, "$value $end"))
+                {
+                    toFind = command.GetBaseValue(index).Replace("\"", "");
+                    pathSource = Main.shellConfig.actualDir;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            else if (command.IsCommandLike(index, "$value $value $end"))
+            {
+                toFind = command.GetBaseValue(index).Replace("\"", "");
+                pathSource = DirectoryTool.SetPath(command.GetBaseValue(index + 1).Replace("\"", ""));
+            }
+            else if (command.IsCommandLike(index, "$value $end"))
+            {
+                toFind = command.GetBaseValue(index).Replace("\"", "");
+                pathSource = Main.shellConfig.actualDir;
+            }
+            else
+            {
+                return 0;
+            }
+
+            return 1;
+        } 
     }
 }

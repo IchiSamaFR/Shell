@@ -42,7 +42,7 @@ namespace Shell.Class.Config
             SQLConn = new SqlConnection();
             SQLConn.ConnectionString = ConnString;
 
-            Console.Write("\rConnexion chargé.");
+            //Console.Write("\rConnexion chargé.");
             Console.WriteLine("");
         }
         public void Init(string server, string db, string user, string pwd)

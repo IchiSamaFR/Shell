@@ -102,6 +102,7 @@ namespace Shell.Class
             {
                 Console.WriteLine("Commande non reconnu.");
             }
+
             Console.WriteLine("");
         }
     }

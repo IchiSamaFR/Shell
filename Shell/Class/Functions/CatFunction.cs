@@ -29,61 +29,8 @@ namespace Shell.Class.Functions
             modifDateV = "";
             index = 1;
 
-
-            if (command.values.Count > 0)
+            if (GetCommand() == 0)
             {
-                int res = 0;
-                if ((res = IsCopy()) == 1)
-                {
-                    if ((res = IsModifDate()) == 0)
-                    {
-                        res = IsCreateDate();
-                        if (res == 2) return 0;
-                    }
-                    else if (res != 2 && (res = IsCreateDate()) == 0)
-                    {
-                        res = IsModifDate();
-                        if (res == 2) return 0;
-                    }
-                    else if (command.GetBaseValue(index) != "")
-                    {
-                        if(res != 2)
-                        {
-                            Console.WriteLine("Arguments non reconnu.");
-                        }
-                        return 0;
-                    }
-                }
-                else if (res != 2 && (res = IsModifDate()) == 1)
-                {
-                    res = IsCreateDate();
-                    if (res == 2) return 0;
-                }
-                else if (res != 2 && (res = IsCreateDate()) == 1)
-                {
-                    res = IsModifDate();
-                    if (res == 2) return 0;
-                }
-                else if (res != 2 && (res = IsWritting()) == 1)
-                {
-                    return 1;
-                }
-                else if (res != 2 && (res = IsShow()) == 1)
-                {
-                    return 1;
-                }
-                else
-                {
-                    if (res != 2)
-                    {
-                        Console.WriteLine("Valeurs non reconnu.");
-                    }
-                    return 0;
-                }
-            }
-            else
-            {
-                Console.WriteLine("Valeurs non reconnu.");
                 return 0;
             }
 
@@ -123,144 +70,99 @@ namespace Shell.Class.Functions
 
             return 1;
         }
+        static int GetCommand()
+        {
+            if (command.IsCommandLike(index, "$value > $value"))
+            {
+                pathSource = DirectoryTool.SetPath(command.GetBaseValue(index).Replace("\"", ""));
+                pathDest = DirectoryTool.SetPath(command.GetBaseValue(index + 2).Replace("\"", ""));
+                index += 3;
+                if (command.IsCommandLike(index, "-m $value") || command.IsCommandLike(index, "--modifdate $value"))
+                {
+                    modifDateV = command.GetBaseValue(index + 1).Replace("\"", "");
+                    index += 2;
+                    if (command.IsCommandLike(index, "-c $value") || command.IsCommandLike(index, "--createdate $value"))
+                    {
+                        creatDateV = command.GetBaseValue(index + 1).Replace("\"", "");
+                    }
+                    else if (!command.IsCommandLike(index, "$end"))
+                    {
+                        return 0;
+                    }
+                }
+                else if (command.IsCommandLike(index, "-c $value") || command.IsCommandLike(index, "--createdate $value"))
+                {
+                    creatDateV = command.GetBaseValue(index + 1).Replace("\"", "");
+                    index += 2;
+                    if (command.IsCommandLike(index, "-m $value") || command.IsCommandLike(index, "--modifdate $value"))
+                    {
+                        modifDateV = command.GetBaseValue(index + 1).Replace("\"", "");
+                    }
+                    else if (!command.IsCommandLike(index, "$end"))
+                    {
+                        return 0;
+                    }
+                }
+                else if (!command.IsCommandLike(index, "$end"))
+                {
+                    return 0;
+                }
+            }
+            else if (command.IsCommandLike(index, "$value -m $value") || command.IsCommandLike(index, "$value --modifdate $value"))
+            {
+                pathSource = DirectoryTool.SetPath(command.GetBaseValue(index).Replace("\"", ""));
+                modifDateV = command.GetBaseValue(index + 2).Replace("\"", "");
+                index += 3;
+                if (command.IsCommandLike(index, "-c $value") || command.IsCommandLike(index, "--createdate $value"))
+                {
+                    creatDateV = command.GetBaseValue(index + 1).Replace("\"", "");
+                }
+                else if (!command.IsCommandLike(index, "$end"))
+                {
+                    return 0;
+                }
+            }
+            else if (command.IsCommandLike(index, "$value -c $value") || command.IsCommandLike(index, "$value --createdate $value"))
+            {
+                pathSource = DirectoryTool.SetPath(command.GetBaseValue(index).Replace("\"", ""));
+                creatDateV = command.GetBaseValue(index + 2).Replace("\"", "");
+                index += 3;
+                if (command.IsCommandLike(index, "-m $value") || command.IsCommandLike(index, "--modifdate $value"))
+                {
+                    modifDateV = command.GetBaseValue(index + 1).Replace("\"", "");
+                }
+                else if (!command.IsCommandLike(index, "$end"))
+                {
+                    return 0;
+                }
+            }
+            else if (command.IsCommandLike(index, "> $value $end"))
+            {
+                string name = command.GetBaseValue(index + 1).Replace("\"", "");
+                string line = "";
+                while (TextTool.CancelableReadLine(out line))
+                {
+                    File.AppendAllText(name, Environment.NewLine + line);
+                }
 
-        static int IsCopy()
-        {
-            string val = command.GetBaseValue(index).Replace("\"", "");
-            string val2 = command.GetBaseValue(index + 2).Replace("\"", "");
-            if (val != "" && command.GetBaseValue(index + 1) == ">")
-            {
-                if (val2 != "")
-                {
-                    pathSource = val;
-                    pathDest = val2;
-                    index += 3;
-                    return 1;
-                }
-                else
-                {
-                    Console.WriteLine("Chemin de copie non reconnu.");
-                    return 2;
-                }
-            }
-            else
-            {
                 return 0;
             }
-        }
-        static int IsModifDate()
-        {
-            if (index != 1 && (command.GetBaseValue(index) == "-m" || command.GetBaseValue(index) == "--modifdate"))
+            else if (command.IsCommandLike(index, "$value $end"))
             {
-                string val = command.GetBaseValue(index + 1).Replace("\"", "");
-                if (TextTool.IsDateTime(val))
+                string name = command.GetBaseValue(index).Replace("\"", "");
+                if (File.Exists(name))
                 {
-                    modifDateV = val;
-                    index += 2;
-                    return 1;
-                }
-                else
-                {
-                    Console.WriteLine("Date non reconnu.");
-                    return 2;
-                }
-            }
-            else if (command.GetBaseValue(index) != "" && (command.GetBaseValue(index + 1) == "-m" || command.GetBaseValue(index + 1) == "--modifdate"))
-            {
-                string val = command.GetBaseValue(index + 2).Replace("\"", "");
-                if (TextTool.IsDateTime(val))
-                {
-                    pathSource = DirectoryTool.SetPath(command.GetBaseValue(index).Replace("\"", ""));
-                    modifDateV = val;
-                    index += 3;
-                    return 1;
-                }
-                else
-                {
-                    Console.WriteLine("Date non reconnu.");
-                    return 2;
-                }
-            }
-            else
-            {
-                return 0;
-            }
-        }
-        static int IsCreateDate()
-        {
-            if (index != 1 && (command.GetBaseValue(index) == "-c" || command.GetBaseValue(index) == "--createdate"))
-            {
-                string val = command.GetBaseValue(index + 1).Replace("\"", "");
-                if (TextTool.IsDateTime(val))
-                {
-                    creatDateV = val;
-                    index += 2;
-                    return 1;
-                }
-                else
-                {
-                    Console.WriteLine("Date non reconnu.");
-                    return 2;
-                }
-            }
-            else if (command.GetBaseValue(index) != "" && (command.GetBaseValue(index + 1) == "-c" || command.GetBaseValue(index + 1) == "--createdate"))
-            {
-                string val = command.GetBaseValue(index + 2).Replace("\"", "");
-                if (TextTool.IsDateTime(val))
-                {
-                    pathSource = DirectoryTool.SetPath(command.GetBaseValue(index).Replace("\"", ""));
-                    creatDateV = val;
-                    index += 3;
-                    return 1;
-                }
-                else
-                {
-                    Console.WriteLine("Date non reconnu.");
-                    return 2;
-                }
-            }
-            else
-            {
-                return 0;
-            }
-        }
-        static int IsShow()
-        {
-            if (command.GetBaseValue(index) != "")
-            {
-                string val = command.GetBaseValue(index).Replace("\"", "");
-                if (command.GetBaseValue(index + 1) == "" && File.Exists(val))
-                {
-                    foreach (var item in File.ReadAllLines(val))
+                    foreach (var item in File.ReadAllLines(name))
                     {
                         Console.WriteLine(item);
                     }
-                    index += 1;
-                    return 1;
                 }
                 else
                 {
-                    Console.WriteLine("Fichier non reconnu.");
-                    return 2;
+                    return 0;
                 }
-            }
-            else
-            {
+
                 return 0;
-            }
-        }
-        static int IsWritting()
-        {
-            string name = command.GetBaseValue(index + 1);
-            if (command.GetBaseValue(index) != ">" || name == "" || command.GetBaseValue(index + 2) != "")
-            {
-                return 0;
-            }
-            
-            string line = "";
-            while (TextTool.CancelableReadLine(out line))
-            {
-                File.AppendAllText(name, Environment.NewLine + line);
             }
 
             return 1;
