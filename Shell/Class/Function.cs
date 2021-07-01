@@ -11,6 +11,7 @@ namespace Shell.Class
         public string Name;
         public string Group;
         public Func<int> ToCall;
+        public string Description;
 
         public Function(string name, Func<int> toCall)
         {
@@ -19,9 +20,14 @@ namespace Shell.Class
         }
 
         public Function(string name, string group, Func<int> toCall)
-            : this (name, toCall)
+            : this(name, toCall)
         {
             this.Group = group;
+        }
+        public Function(string name, string group, Func<int> toCall, string description)
+            : this(name, group, toCall)
+        {
+            this.Description = description;
         }
     }
 }

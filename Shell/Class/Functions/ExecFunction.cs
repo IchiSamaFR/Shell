@@ -37,18 +37,17 @@ namespace Shell.Class.Functions
             {
                 proc = Process.Start(pathSource);
                 proc.WaitForInputIdle();
+                proc.WaitForExit(100);
             }
             else if (Directory.Exists(pathSource))
             {
                 proc = Process.Start(pathSource);
-                proc.WaitForInputIdle();
             }
             else
             {
                 Console.WriteLine("Fichier ou dossier introuvable.");
                 return 0;
             }
-            proc.WaitForExit(100);
             return 1;
         }
 

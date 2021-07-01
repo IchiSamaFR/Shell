@@ -47,7 +47,7 @@ namespace Shell.Class.Functions
                 }
                 if (item.Key != "help")
                 {
-                    Console.WriteLine(TextTool.StringToWidth("  " + item.Key, 10) + "e");
+                    Console.WriteLine(TextTool.StringToWidth("  " + item.Key, 14) + item.Value.Description);
                 }
             }
             return 1;

@@ -44,26 +44,24 @@ namespace Shell.Class
             colors.Add("white", ConsoleColor.White);
             colors.Add("black", ConsoleColor.Black);
 
-            functions.Add("fcolor", new Function("fcolor", "interface", new Func<int>(ColorFunctions.ChangeForeColor)));
-            functions.Add("fg", new Function("fcolor", "interface", new Func<int>(ColorFunctions.ChangeForeColor)));
-            functions.Add("colors", new Function("color", "interface", new Func<int>(ColorFunctions.ShowColors)));
-            functions.Add("color", new Function("color", "interface", new Func<int>(ColorFunctions.ShowColors)));
+            functions.Add("fcolor", new Function("fcolor", "interface", new Func<int>(ColorFunctions.ChangeForeColor), "Change la couleur des lignes."));
+            functions.Add("color", new Function("color", "interface", new Func<int>(ColorFunctions.ShowColors), "Affiche toutes les couleurs disponible."));
 
-            functions.Add("ls", new Function("ls", "directory", new Func<int>(LsFunction.LsFolders)));
-            functions.Add("cd", new Function("cd", "directory", new Func<int>(DirFunction.CurrentDir)));
-            functions.Add("find", new Function("find", "directory", new Func<int>(FindFunction.Find)));
-            functions.Add("cat", new Function("cat", "directory", new Func<int>(CatFunction.Cat)));
-            functions.Add("rm", new Function("rm", "directory", new Func<int>(RmFunction.Rm)));
-            functions.Add("mv", new Function("mv", "directory", new Func<int>(MvFunction.Mv)));
-            functions.Add("touch", new Function("touch", "directory", new Func<int>(TouchFunction.Touch)));
-            functions.Add("mkdir", new Function("mkdir", "directory", new Func<int>(MkdirFunction.Mkdir)));
+            functions.Add("ls", new Function("ls", "directory", new Func<int>(LsFunction.LsFolders), "Affiche tous les fichiers et dossier d'un dossier."));
+            functions.Add("cd", new Function("cd", "directory", new Func<int>(DirFunction.CurrentDir), "Permet de se deplacer de dossier."));
+            functions.Add("find", new Function("find", "directory", new Func<int>(FindFunction.Find), "Permet de trouver un fichier ou dans un fichier un nom spécifique."));
+            functions.Add("cat", new Function("cat", "directory", new Func<int>(CatFunction.Cat), "Copier un fichier, créer un fichier."));
+            functions.Add("rm", new Function("rm", "directory", new Func<int>(RmFunction.Rm), "Supprimer un fichier ou dossier."));
+            functions.Add("mv", new Function("mv", "directory", new Func<int>(MvFunction.Mv), "Deplace un fichier ou un dossier."));
+            functions.Add("touch", new Function("touch", "directory", new Func<int>(TouchFunction.Touch), "Permet de créer un fichier."));
+            functions.Add("mkdir", new Function("mkdir", "directory", new Func<int>(MkdirFunction.Mkdir), "Permet de créer un dossier."));
 
-            functions.Add("exec", new Function("exec", "tool", new Func<int>(ExecFunction.Exec)));
-            functions.Add("echo", new Function("echo", "tool", new Func<int>(SystemFunction.Echo)));
-            functions.Add("exit", new Function("exit", "tool", new Func<int>(SystemFunction.Exit)));
-            functions.Add("clear", new Function("clear", "tool", new Func<int>(SystemFunction.Clear)));
-            functions.Add("help", new Function("help", "tool", new Func<int>(SystemFunction.Help)));
-            functions.Add("sql", new Function("sql", "tool", new Func<int>(SQLFunction.SQL)));
+            functions.Add("exec", new Function("exec", "tool", new Func<int>(ExecFunction.Exec), "Execute un programme donné."));
+            functions.Add("echo", new Function("echo", "tool", new Func<int>(SystemFunction.Echo), "Affiche un texte dans la console."));
+            functions.Add("exit", new Function("exit", "tool", new Func<int>(SystemFunction.Exit), "Ferme l'appplication."));
+            functions.Add("clear", new Function("clear", "tool", new Func<int>(SystemFunction.Clear), "Efface toutes les lignes de la console."));
+            functions.Add("help", new Function("help", "tool", new Func<int>(SystemFunction.Help), "Affiche l'aide."));
+            functions.Add("sql", new Function("sql", "tool", new Func<int>(SQLFunction.SQL), "Permet d'éxecuter des requêtes sql."));
         }
 
         void Update()
@@ -93,7 +91,7 @@ namespace Shell.Class
 
             foreach (var item in functions)
             {
-                if (item.Key == Command.function)
+                if (item.Key == Command.function.ToLower())
                 {
                     item.Value.ToCall.Invoke();
                     find = true;
