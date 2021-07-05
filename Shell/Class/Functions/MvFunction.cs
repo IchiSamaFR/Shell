@@ -38,7 +38,14 @@ namespace Shell.Class.Functions
 
             if (File.Exists(pathSource))
             {
-                File.Move(pathSource, pathDest);
+                if (Directory.Exists(pathDest))
+                {
+                    File.Move(pathSource, pathDest + "/" + Path.GetFileName(pathSource));
+                }
+                else
+                {
+                    File.Move(pathSource, pathDest);
+                }
             }
             else if (Directory.Exists(pathSource))
             {

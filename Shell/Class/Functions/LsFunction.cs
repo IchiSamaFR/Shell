@@ -18,6 +18,8 @@ namespace Shell.Class.Functions
         static string pathSource;
         static bool list;
         static int index;
+        static IFormatProvider frenchFormatProvider =
+            new CultureInfo("fr-FR");
 
         public static int LsFolders()
         {
@@ -76,14 +78,25 @@ namespace Shell.Class.Functions
                 Console.ForegroundColor = Main.shellConfig.textColor;
                 Console.WriteLine("");
 
+                long size = 0L;
+                int files = 0, folders = 0;
+
                 foreach (var item in Directory.GetDirectories(pathSource))
                 {
                     LsDir(item);
+                    folders++;
                 }
                 foreach (var item in Directory.GetFiles(pathSource))
                 {
-                    LsFile(item);
+                    LsFile(item, out size);
+                    files++;
                 }
+                Console.WriteLine(TextTool.AddBlankLeft(files.ToString(), 12) 
+                        + TextTool.AddBlankRight(" fichier(s)", 12) 
+                        + TextTool.AddBlankLeft(size.ToString("#,##0", frenchFormatProvider), 20) + " octets");
+                Console.WriteLine(TextTool.AddBlankLeft(folders.ToString(), 12)
+                        + TextTool.AddBlankRight(" dossier(s)", 12));
+
             }
             else
             {
@@ -91,6 +104,11 @@ namespace Shell.Class.Functions
                 string[,] colValues = tuple.Item1;
                 int[] charCol = tuple.Item2;
                 int countDir = tuple.Item3;
+
+                if (countDir == 0)
+                {
+                    return 0;
+                }
 
                 for (int y = 0; y < colValues.GetLength(1); y++)
                 {
@@ -120,6 +138,11 @@ namespace Shell.Class.Functions
             int maxSize = 30;
             int _countDir = 0;
             int col = 4;
+
+            if (!Directory.Exists(pathSource))
+            {
+                return Tuple.Create(new string[0,0], new int[0], 0);
+            }
 
             int amount = Directory.GetDirectories(pathSource).Length + Directory.GetFiles(pathSource).Length + 1;
             string[,] colValues = new string[col, (int)Math.Ceiling((float)amount / (float)col)];
@@ -183,11 +206,19 @@ namespace Shell.Class.Functions
         static void LsFile(string path)
         {
             FileInfo _file = new FileInfo(path);
-            IFormatProvider frenchFormatProvider =
-                new System.Globalization.CultureInfo("fr-FR");
             Console.WriteLine(_file.CreationTime.ToString("dd/MM/yyyy") +
                              "  " + TextTool.AddBlankLeft(_file.Length.ToString("#,##0", frenchFormatProvider), 20) +
                              "  " + _file.Name + "");
+        }
+        static void LsFile(string path, out long size)
+        {
+            size = 0L;
+            FileInfo _file = new FileInfo(path);
+            long fileLength = _file.Length;
+            Console.WriteLine(_file.CreationTime.ToString("dd/MM/yyyy") +
+                             "  " + TextTool.AddBlankLeft(fileLength.ToString("#,##0", frenchFormatProvider), 20) +
+                             "  " + _file.Name + "");
+            size += fileLength;
         }
         static void LsDir(string path)
         {

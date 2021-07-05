@@ -13,6 +13,7 @@ namespace Shell.Class.Functions
     {
         public static Command command;
         static string pathSource;
+        static string pathSave;
         static string toFind;
         static bool showLine;
         static bool findName;
@@ -30,6 +31,13 @@ namespace Shell.Class.Functions
             if(GetCommand() == 0)
             {
                 return 0;
+            }
+            if (pathSave != "")
+            {
+                if (File.Exists(pathSave))
+                {
+                    File.Create(pathSave);
+                }
             }
 
             if (File.Exists(pathSource))
@@ -99,9 +107,19 @@ namespace Shell.Class.Functions
                     }
                     else if (findName)
                     {
-                        if (Path.GetFileName(item).ToLower().IndexOf(toFind.ToLower()) >= 0)
+                        if(pathSave != "")
                         {
-                            Console.WriteLine(item.Substring(pathSource.Length, item.Length - pathSource.Length));
+                            if (Path.GetFileName(item).ToLower().IndexOf(toFind.ToLower()) >= 0)
+                            {
+                                File.AppendAllText(pathSave, Environment.NewLine + item);
+                            }
+                        }
+                        else
+                        {
+                            if (Path.GetFileName(item).ToLower().IndexOf(toFind.ToLower()) >= 0)
+                            {
+                                Console.WriteLine(item.Substring(pathSource.Length, item.Length - pathSource.Length));
+                            }
                         }
                     }
                     else
@@ -159,7 +177,13 @@ namespace Shell.Class.Functions
             {
                 findName = true;
                 index += 1;
-                if (command.IsCommandLike(index, "$value $value $end"))
+                if (command.IsCommandLike(index, "$value $value > $value $end"))
+                {
+                    toFind = command.GetBaseValue(index).Replace("\"", "");
+                    pathSource = DirectoryTool.SetPath(command.GetBaseValue(index + 1).Replace("\"", ""));
+                    pathSave = DirectoryTool.SetPath(command.GetBaseValue(index + 3).Replace("\"", ""));
+                }
+                else if (command.IsCommandLike(index, "$value $value $end"))
                 {
                     toFind = command.GetBaseValue(index).Replace("\"", "");
                     pathSource = DirectoryTool.SetPath(command.GetBaseValue(index + 1).Replace("\"", ""));

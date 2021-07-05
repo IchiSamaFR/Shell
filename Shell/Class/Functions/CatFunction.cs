@@ -39,7 +39,19 @@ namespace Shell.Class.Functions
             {
                 if (pathSource != "" && pathDest != "")
                 {
-                    File.Copy(pathSource, pathDest, true);
+                    if (Directory.Exists(pathDest))
+                    {
+                        File.Copy(pathSource, pathDest + "/" + Path.GetFileName(pathSource), true);
+                    }
+                    else if (pathDest.Replace("/", "\\")[pathDest.Length - 1] == '\\')
+                    {
+                        Directory.CreateDirectory(pathDest);
+                        File.Copy(pathSource, pathDest + "/" + Path.GetFileName(pathSource), true);
+                    }
+                    else
+                    {
+                        File.Copy(pathSource, pathDest, true);
+                    }
                 }
                 else if (creatDateV == "" && modifDateV == "")
                 {
