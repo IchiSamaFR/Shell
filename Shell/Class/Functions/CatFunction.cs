@@ -33,7 +33,10 @@ namespace Shell.Class.Functions
             {
                 return 0;
             }
-
+            if (!DirectoryTool.IsValidPath(pathSource) || !DirectoryTool.IsValidPath(pathDest))
+            {
+                return 0;
+            }
 
             if (File.Exists(pathSource))
             {

@@ -35,6 +35,10 @@ namespace Shell.Class.Functions
                 Console.WriteLine("Fichier ou dossier non reconnu.");
                 return 0;
             }
+            if (!DirectoryTool.IsValidPath(pathDest))
+            {
+                return 0;
+            }
 
             if (File.Exists(pathSource))
             {

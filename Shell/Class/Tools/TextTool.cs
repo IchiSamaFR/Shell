@@ -186,6 +186,7 @@ namespace Shell.Class.Tools
                 value = buffer.ToString().Substring(2);
                 return true;
             }
+            Console.WriteLine();
             return false;
         }
     }

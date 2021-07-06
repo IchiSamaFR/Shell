@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace Shell.Class.Tools
 {
@@ -90,6 +91,26 @@ namespace Shell.Class.Tools
             else
             {
                 return Main.shellConfig.actualDir + "\\" + path;
+            }
+        }
+
+        public static bool IsValidPath(string path)
+        {
+            bool rooted = Path.IsPathRooted(path);
+            if ((path.IndexOf(":") > 1 && rooted)
+                || (path.IndexOf(":") >= 0 && !rooted)
+                || path.IndexOf("\"") >= 0
+                || path.IndexOf("*") >= 0
+                || path.IndexOf("?") >= 0
+                || path.IndexOf("<") >= 0
+                || path.IndexOf(">") >= 0
+                || path.IndexOf("|") >= 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
             }
         }
     }

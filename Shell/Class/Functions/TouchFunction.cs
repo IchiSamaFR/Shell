@@ -32,7 +32,11 @@ namespace Shell.Class.Functions
             {
                 return 0;
             }
-            
+            if (!DirectoryTool.IsValidPath(pathSource))
+            {
+                return 0;
+            }
+
             if (!File.Exists(pathSource))
             {
                 File.Create(pathSource).Dispose();

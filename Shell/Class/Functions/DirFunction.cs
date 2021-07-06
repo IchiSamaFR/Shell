@@ -50,7 +50,6 @@ namespace Shell.Class.Functions
             }
             else
             {
-                Console.WriteLine(path);
                 Console.WriteLine("Chemin d'accès non reconnu.");
                 return 0;
             }

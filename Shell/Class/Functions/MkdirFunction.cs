@@ -33,14 +33,18 @@ namespace Shell.Class.Functions
                 Console.WriteLine("Dossier non reconnu.");
                 return 0;
             }
+            if (!DirectoryTool.IsValidPath(pathSource))
+            {
+                return 0;
+            }
 
-            if (!Directory.Exists(pathSource))
+            if (!Directory.Exists(pathSource) && !File.Exists(pathSource))
             {
                 Directory.CreateDirectory(pathSource);
             }
             else
             {
-                Console.WriteLine("Dossier déjà existant.");
+                Console.WriteLine("Fichier ou Dossier déjà existant avec ce nom.");
                 return 0;
             }
             return 1;
