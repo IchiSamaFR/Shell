@@ -57,6 +57,9 @@ namespace Shell.Class
             functions.Add("touch", new Function("touch", "directory", new Func<int>(TouchFunction.Touch), "Permet de créer un fichier."));
             functions.Add("mkdir", new Function("mkdir", "directory", new Func<int>(MkdirFunction.Mkdir), "Permet de créer un dossier."));
 
+
+            functions.Add("ds", new Function("ds", "usage", new Func<int>(DsFunction.Ds), "Permet de connaitre l'espace disque disponible."));
+
             functions.Add("exec", new Function("exec", "tool", new Func<int>(ExecFunction.Exec), "Execute un programme donné."));
             functions.Add("echo", new Function("echo", "tool", new Func<int>(SystemFunction.Echo), "Affiche un texte dans la console."));
             functions.Add("exit", new Function("exit", "tool", new Func<int>(SystemFunction.Exit), "Ferme l'appplication."));

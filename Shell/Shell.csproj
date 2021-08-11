@@ -54,6 +54,7 @@
     <Compile Include="Class\Functions\CatFunction.cs" />
     <Compile Include="Class\Functions\ColorFunctions.cs" />
     <Compile Include="Class\Functions\DirFunction.cs" />
+    <Compile Include="Class\Functions\DsFunction.cs" />
     <Compile Include="Class\Functions\FindFunction.cs" />
     <Compile Include="Class\Functions\LsFunction.cs" />
     <Compile Include="Class\Functions\MkdirFunction.cs" />
