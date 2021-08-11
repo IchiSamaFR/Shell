@@ -16,6 +16,7 @@ namespace Shell.Class.Functions
 
         static string pathSource;
         static int index;
+        static bool onlyEmpty;
 
         public static int Rm()
         {
@@ -23,8 +24,14 @@ namespace Shell.Class.Functions
             shellConfig = Main.shellConfig;
             pathSource = "";
             index = 1;
+            onlyEmpty = false;
 
-            if(command.IsCommandLike(index, "$value $end"))
+            if (command.IsCommandLike(index, "-r $value $end"))
+            {
+                onlyEmpty = true;
+                pathSource = DirectoryTool.SetPath(command.GetBaseValue(index + 1).Replace("\"", ""));
+            }
+            else if (command.IsCommandLike(index, "$value $end"))
             {
                 pathSource = DirectoryTool.SetPath(command.GetBaseValue(index).Replace("\"", ""));
             }
@@ -34,17 +41,77 @@ namespace Shell.Class.Functions
                 return 0;
             }
 
-            if (File.Exists(pathSource))
+            if (File.Exists(pathSource) && !onlyEmpty)
             {
                 File.Delete(pathSource);
             }
             else if (Directory.Exists(pathSource))
             {
-                Directory.Delete(pathSource, true);
+                if (onlyEmpty)
+                {
+                    try
+                    {
+                        Directory.Delete(pathSource, false);
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Impossible de supprimer le dossier.");
+                        return 0;
+                    }
+                }
+                else
+                {
+                    Directory.Delete(pathSource, true);
+                }
             }
             else
             {
-                Console.WriteLine("Fichier ou dossier introuvable.");
+                if (onlyEmpty)
+                {
+                    Console.WriteLine("Dossier introuvable.");
+                }
+                else
+                {
+                    Console.WriteLine("Fichier ou dossier introuvable.");
+                }
+                return 0;
+            }
+
+            return 1;
+        }
+
+        public static int RmDir()
+        {
+            command = Main.Command;
+            shellConfig = Main.shellConfig;
+            pathSource = "";
+            index = 1;
+
+            if (command.IsCommandLike(index, "$value $end"))
+            {
+                pathSource = DirectoryTool.SetPath(command.GetBaseValue(index).Replace("\"", ""));
+            }
+            else
+            {
+                Console.WriteLine("Dossier non reconnu.");
+                return 0;
+            }
+
+            if (Directory.Exists(pathSource))
+            {
+                try
+                {
+                    Directory.Delete(pathSource, false);
+                }
+                catch
+                {
+                    Console.WriteLine("Impossible de supprimer le dossier.");
+                    return 0;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Dossier introuvable.");
                 return 0;
             }
 

@@ -88,7 +88,9 @@ namespace Shell.Class.Functions
                 }
                 foreach (var item in Directory.GetFiles(pathSource))
                 {
-                    LsFile(item, out size);
+                    long val = 0L;
+                    LsFile(item, out val);
+                    size += val;
                     files++;
                 }
                 Console.WriteLine(TextTool.AddBlankLeft(files.ToString(), 12) 

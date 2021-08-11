@@ -52,6 +52,7 @@ namespace Shell.Class
             functions.Add("find", new Function("find", "directory", new Func<int>(FindFunction.Find), "Permet de trouver un fichier ou dans un fichier un nom spécifique."));
             functions.Add("cat", new Function("cat", "directory", new Func<int>(CatFunction.Cat), "Copier un fichier, créer un fichier."));
             functions.Add("rm", new Function("rm", "directory", new Func<int>(RmFunction.Rm), "Supprimer un fichier ou dossier."));
+            functions.Add("rmdir", new Function("rmdir", "directory", new Func<int>(RmFunction.RmDir), "Supprimer dossier vide."));
             functions.Add("mv", new Function("mv", "directory", new Func<int>(MvFunction.Mv), "Deplace un fichier ou un dossier."));
             functions.Add("touch", new Function("touch", "directory", new Func<int>(TouchFunction.Touch), "Permet de créer un fichier."));
             functions.Add("mkdir", new Function("mkdir", "directory", new Func<int>(MkdirFunction.Mkdir), "Permet de créer un dossier."));
