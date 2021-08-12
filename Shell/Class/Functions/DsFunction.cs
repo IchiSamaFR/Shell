@@ -46,6 +46,10 @@ namespace Shell.Class.Functions
             {
                 divider = 1;
             }
+            else
+            {
+                return 0;
+            }
 
 
             Console.WriteLine(TextTool.AddBlankRight("", 5) + " "
